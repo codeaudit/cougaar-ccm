@@ -214,7 +214,7 @@ public class AgentComponentImpl extends ComponentImpl implements AgentComponent 
 	 * 
 	 * @see com.cougaarsoftware.config.AgentComponent#addCommand(com.cougaarsoftware.config.Command)
 	 */
-	public void addCommand(Command command) {
+	public void addCommand(Capability command) {
 		if (commands == null) {
 			commands = Collections.synchronizedMap(new HashMap());
 		}
@@ -233,7 +233,7 @@ public class AgentComponentImpl extends ComponentImpl implements AgentComponent 
 	 * 
 	 * @see com.cougaarsoftware.config.AgentComponent#removeCommand(com.cougaarsoftware.config.Command)
 	 */
-	public void removeCommand(Command command) {
+	public void removeCommand(Capability command) {
 		if (commands != null) {
 			Vector commandList = (Vector) commands.get(command.getComponentClass());
 			if (commandList != null) {

@@ -39,7 +39,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import com.cougaarsoftware.config.Command;
+import com.cougaarsoftware.config.Capability;
 import com.touchgraph.graphlayout.Edge;
 import com.touchgraph.graphlayout.Node;
 import com.touchgraph.graphlayout.interaction.DragNodeUI;
@@ -176,7 +176,7 @@ public class ConfigNavigateUI extends TGUserInterface {
 			JMenu subMenu = new JMenu(subMenuStr);
 			nodeAgentPopup.add(subMenu);
 			while (j.hasNext()) {
-				final Command command = (Command) j.next();
+				final Capability command = (Capability) j.next();
 				String displayName = command.getDisplayName();				
 				menuItem = new JMenuItem(displayName);
 				menuItem.addActionListener(new CommandActionListener(command, node));
@@ -186,10 +186,10 @@ public class ConfigNavigateUI extends TGUserInterface {
 		}
 	}
 	class CommandActionListener implements ActionListener {
-		private Command command;
+		private Capability command;
 		private ConfigNode node;
 
-		public CommandActionListener(Command command, ConfigNode node) {
+		public CommandActionListener(Capability command, ConfigNode node) {
 			this.command = command;
 			this.node = node;
 		}

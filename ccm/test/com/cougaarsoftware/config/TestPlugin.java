@@ -131,7 +131,7 @@ public class TestPlugin extends ComponentPlugin {
 		if (logging.isDebugEnabled()) {
 			logging.debug(agentId.getAddress() + ": Setting up subscriptions");
 		}
-		Command c = new Command("testVerb", "Display Name", this.getClass()
+		Capability c = new Capability("testVerb", "Display Name", this.getClass()
 				.getName(), getUIDService().nextUID());
 		getBlackboardService().publishAdd(c);
 		testTaskSub = (IncrementalSubscription) getBlackboardService().subscribe(

@@ -46,7 +46,7 @@ import org.cougaar.planning.ldm.predicate.TaskPredicate;
 import org.cougaar.util.UnaryPredicate;
 
 import com.cougaarsoftware.config.AgentComponent;
-import com.cougaarsoftware.config.Command;
+import com.cougaarsoftware.config.Capability;
 import com.cougaarsoftware.config.Component;
 import com.cougaarsoftware.config.Constants;
 import com.cougaarsoftware.config.NodeComponent;
@@ -320,7 +320,7 @@ public class ConfigViewerApplicationPlugin extends ComponentPlugin {
 	 * @param command
 	 * @param node
 	 */
-	public void executeCommand(Command command, MessageAddress agentAddress) {
+	public void executeCommand(Capability command, MessageAddress agentAddress) {
 		try {
 			NewTask task = getPlanningFactory().newTask();
 			task.setVerb(Verb.get(command.getVerb()));

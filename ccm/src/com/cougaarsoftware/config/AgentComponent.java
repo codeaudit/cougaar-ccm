@@ -105,8 +105,8 @@ public interface AgentComponent extends Component {
 	
 	public void setCommands(Map commands);
 	
-	public void addCommand(Command command);
-	public void removeCommand(Command command);
+	public void addCommand(Capability command);
+	public void removeCommand(Capability command);
 	
 	public MessageAddress getMessageAddress();
 	public void setMessageAddress(MessageAddress address);

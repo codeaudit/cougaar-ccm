@@ -66,7 +66,7 @@ import org.cougaar.util.ConfigFinder;
 import org.cougaar.util.log.Logger;
 import org.cougaar.util.log.LoggerFactory;
 import com.cougaarsoftware.config.AgentComponent;
-import com.cougaarsoftware.config.Command;
+import com.cougaarsoftware.config.Capability;
 import com.cougaarsoftware.config.Component;
 import com.cougaarsoftware.config.NodeComponent;
 import com.cougaarsoftware.config.Society;
@@ -162,7 +162,7 @@ public class ConfigViewer extends JFrame {
 	private void addSplitPane() {
 		treeScrollPane = new TreePanel();
 		graphPanel = new ConfigViewerGUI(controller);
-		splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, treeScrollPane,
+		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, treeScrollPane,
 				graphPanel);
 		splitPane.setOneTouchExpandable(true);
 		splitPane.setDividerLocation(150);
@@ -272,7 +272,7 @@ public class ConfigViewer extends JFrame {
 					JMenu subMenu = new JMenu(subMenuStr);
 					popupMenu.add(subMenu);
 					while (j.hasNext()) {
-						final Command command = (Command) j.next();
+						final Capability command = (Capability) j.next();
 						String displayName = command.getDisplayName();
 						JMenuItem menuItem = new JMenuItem(displayName);
 						menuItem.addActionListener(new CommandActionListener(command, ac
@@ -285,10 +285,10 @@ public class ConfigViewer extends JFrame {
 			return null;
 		}
 		class CommandActionListener implements ActionListener {
-			private Command command;
+			private Capability command;
 			private MessageAddress address;
 
-			public CommandActionListener(Command command, MessageAddress agentAddress) {
+			public CommandActionListener(Capability command, MessageAddress agentAddress) {
 				this.command = command;
 				this.address = agentAddress;
 			}

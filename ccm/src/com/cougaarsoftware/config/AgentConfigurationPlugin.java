@@ -259,7 +259,7 @@ public class AgentConfigurationPlugin extends ParameterizedPlugin {
 		e = null;
 		e = addCommandSubscription.getAddedList();
 		while (e.hasMoreElements()) {
-			Command c = (Command) e.nextElement();
+			Capability c = (Capability) e.nextElement();
 			if (commands == null) {
 				commands = Collections.synchronizedMap(new HashMap());
 			}
@@ -344,7 +344,7 @@ public class AgentConfigurationPlugin extends ParameterizedPlugin {
 	};
 	private static UnaryPredicate commandPredicate = new UnaryPredicate() {
 		public boolean execute(Object o) {
-			return o instanceof Command;
+			return o instanceof Capability;
 		}
 	};
 	/**

@@ -32,13 +32,13 @@ import com.cougaarsoftware.config.util.HashCodeUtil;
 /**
  * @author mabrams
  */
-public class Command implements Serializable, UniqueObject {
+public class Capability implements Serializable, UniqueObject {
 	private String verb;
 	private String displayName;
 	private String componentClass;	
 	private UID uid;
 
-	public Command(String verb, String displayName, String componentClass, UID uid) {
+	public Capability(String verb, String displayName, String componentClass, UID uid) {
 		this.verb = verb;
 		this.displayName = displayName;
 		this.componentClass = componentClass;
@@ -54,8 +54,8 @@ public class Command implements Serializable, UniqueObject {
 	}
 
 	public boolean equals(Object o) {
-		if (o instanceof Command) {
-			Command c = (Command) o;
+		if (o instanceof Capability) {
+			Capability c = (Capability) o;
 			if (c.getVerb().equals(this.getVerb())
 					&& c.getDisplayName().equals(this.getDisplayName())
 					&& c.getComponentClass().equals(this.getComponentClass())) {

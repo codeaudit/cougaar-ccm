@@ -24,6 +24,8 @@
  */
 package com.cougaarsoftware.config;
 import java.io.Serializable;
+import java.util.Vector;
+
 import org.cougaar.core.util.UniqueObject;
 /**
  * A simple component in the configuration
@@ -84,4 +86,6 @@ public interface Component extends Serializable, UniqueObject {
 	public String getInsertionpoint();
 	public int getStatus();
 	public void setStatus(int status);
+	public Vector getArguments();
+	public void setArguments(Vector arguments);
 }

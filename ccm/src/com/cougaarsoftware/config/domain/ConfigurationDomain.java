@@ -38,7 +38,7 @@ import com.cougaarsoftware.config.lp.ConfigurationLP;
  * 
  * @author mabrams
  */
-public class ConfigurationDomain extends DomainAdapter {
+public class ConfigurationDomain extends DomainAdapter {    										  
 	public static final String DOMAIN_NAME = "configuration";
 	private AgentIdentificationService agentIdService;
 	private MessageAddress self;
