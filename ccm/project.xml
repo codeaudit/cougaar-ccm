@@ -123,6 +123,12 @@
     	<artifactId>servlet</artifactId>
     	<version>11.2</version>    
     	<url>http://puma1.va.cougaarsoftware.com/maven/</url>
+    </dependency>
+    <dependency>
+    	<groupId>junit</groupId>
+    	<artifactId>junit</artifactId>
+    	<version>3.8.1</version>    
+    	<url></url>
     </dependency> 
     <dependency>
     	<groupId>touchgraph</groupId>
@@ -130,6 +136,24 @@
     	<version>1.2</version>
 		<url>http://puma1.va.cougaarsoftware.com/maven/</url>
     </dependency>
+    <dependency>
+    	<groupId>prefuse</groupId>
+    	<artifactId>prefuse</artifactId>    	
+    	<version>0.1</version>
+		<url>http://puma1.va.cougaarsoftware.com/maven/</url>
+    </dependency>
+    <dependency>
+    	<groupId>jgraph</groupId>
+    	<artifactId>jgraph</artifactId>    	
+    	<version>5.0.4</version>
+		<url>http://puma1.va.cougaarsoftware.com/maven/</url>
+    </dependency>
+    <dependency>
+    	<groupId>jgraph</groupId>
+    	<artifactId>jgraph-addons</artifactId>    	
+    	<version>1.0.2</version>
+		<url>http://puma1.va.cougaarsoftware.com/maven/</url>
+    </dependency>            
     
     
   </dependencies>
