@@ -24,8 +24,8 @@
  */
 package com.cougaarsoftware.config;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.Vector;
 
 import org.cougaar.core.component.ComponentDescription;
 import org.cougaar.core.mts.MessageAddress;
@@ -35,7 +35,7 @@ import org.cougaar.core.mts.MessageAddress;
  */
 public interface AgentComponent extends Component {
 
-	public Vector getChildComponents();
+	public Collection getChildComponents();
 	/**
 	 * add a child component to this agent
 	 * 

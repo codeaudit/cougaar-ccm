@@ -24,6 +24,7 @@
  */
 package com.cougaarsoftware.config;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -61,7 +62,7 @@ public class AgentComponentImpl extends ComponentImpl implements AgentComponent 
 	 * 
 	 * @see com.cougaarsoftware.config.AgentComponent#getChildComponents()
 	 */
-	public Vector getChildComponents() {
+	public Collection getChildComponents() {
 		return childComponents;
 	}
 
@@ -131,7 +132,7 @@ public class AgentComponentImpl extends ComponentImpl implements AgentComponent 
 		if (aComponent.getName().equals(this.getName())
 				&& aComponent.getStatus() == this.getStatus()) {
 			if (aComponent.getParentNode().equals(this.getParentNode())) {
-				Vector aChildComponents = aComponent.getChildComponents();
+				Collection aChildComponents = aComponent.getChildComponents();
 				if (aChildComponents != null && this.childComponents != null) {
 					Iterator i = aChildComponents.iterator();
 					while (i.hasNext()) {
