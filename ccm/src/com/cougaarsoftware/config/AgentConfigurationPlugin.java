@@ -30,10 +30,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.component.ComponentDescription;
 import org.cougaar.core.component.StateTuple;
@@ -45,11 +45,15 @@ import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.ThreadService;
 import org.cougaar.core.service.UIDService;
+import org.cougaar.core.service.community.CommunityChangeEvent;
+import org.cougaar.core.service.community.CommunityChangeListener;
+import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.multicast.AttributeBasedAddress;
 import org.cougaar.planning.ldm.PlanningFactory;
 import org.cougaar.planning.ldm.plan.NewTask;
 import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.util.UnaryPredicate;
+
 import com.cougaarsoftware.config.domain.ConfigurationDomain;
 import com.cougaarsoftware.config.domain.ConfigurationFactory;
 import com.cougaarsoftware.config.lp.ConfigurationDirective;
@@ -133,6 +137,8 @@ public class AgentConfigurationPlugin extends ParameterizedPlugin {
     private ConfigurationFactory configFactory;
 
     private NodeIdentificationService nodeIdentificationService;
+
+    private CommunityService communityService;
 
     /**
      * Set LoggingService at load time
@@ -225,6 +231,14 @@ public class AgentConfigurationPlugin extends ParameterizedPlugin {
         return ((PlanningFactory) getDomainService().getFactory("planning"));
     }
 
+    public void setCommunityService(CommunityService communityService) {
+        this.communityService = communityService;
+    }
+
+    public CommunityService getCommunityService() {
+        return this.communityService;
+    }
+
     /**
      * get the update interval and configruation community from the plugin
      * parameters
@@ -241,12 +255,28 @@ public class AgentConfigurationPlugin extends ParameterizedPlugin {
         }
         configCommunity = getParameter(AgentConfigurationPlugin.CONFIG_COMMUNITY_PARAM);
     }
+    
+    private boolean hasConfigManager = false;
 
     protected void setupSubscriptions() {
         if (logging.isDebugEnabled()) {
             logging.debug(agentId.getAddress() + ": Setting up subscriptions");
         }
+        if (configCommunity != null) {
+            communityService.addListener(new CommunityChangeListener() {
 
+                public void communityChanged(CommunityChangeEvent cce) {
+                    if (cce.getCommunity().getEntities().size() > 0) {
+                        hasConfigManager = true;
+                    }
+                    
+                }
+
+                public String getCommunityName() {
+                    return configCommunity;
+                }
+            });
+        }
         configFactory = (ConfigurationFactory) getDomainService().getFactory(
                 ConfigurationDomain.DOMAIN_NAME);
         if (configFactory != null) {
@@ -280,7 +310,7 @@ public class AgentConfigurationPlugin extends ParameterizedPlugin {
             logging.debug(agentId.getAddress() + ": Executing");
         }
         //handle tasks to update and send agent configuration
-        if (agentUpdateSubscription != null) {
+        if (agentUpdateSubscription != null && hasConfigManager) {
             Enumeration e = agentUpdateSubscription.getAddedList();
             while (e.hasMoreElements()) {
                 Task t = (Task) e.nextElement();
@@ -312,9 +342,10 @@ public class AgentConfigurationPlugin extends ParameterizedPlugin {
      */
     private void composeAgentConfiguration() {
         List pluginTuples = acs.listPlugins();
-        Iterator tupleIter = pluginTuples.iterator();
+       
         AgentComponent agentComponent = null;
-        while (tupleIter.hasNext()) {
+        int size =  pluginTuples.size();
+        for (int i = 0; i < size; i++) {            
             if (agentComponent == null) {
                 agentComponent = new AgentComponentImpl("Agent:"
                         + getAgentIdentifier().getAddress(), getUIDService()
@@ -336,7 +367,7 @@ public class AgentConfigurationPlugin extends ParameterizedPlugin {
                 agentComponent.setParentNode(getNodeIdentificationService()
                         .getMessageAddress().getAddress());
             }
-            StateTuple tuple = (StateTuple) tupleIter.next();
+            StateTuple tuple = (StateTuple) pluginTuples.get(i);
             ComponentDescription plugin = tuple.getComponentDescription();
             agentComponent.addChildComponent(plugin);
             //add the commands
@@ -361,6 +392,8 @@ public class AgentConfigurationPlugin extends ParameterizedPlugin {
             ncd.setPayload(agentComponent);
             ncd.setType(ConfigurationDirective.AGENT_CONFIGURATION);
             getBlackboardService().publishAdd(ncd);
+        } else {
+            agentComponent = null;
         }
     }
 
