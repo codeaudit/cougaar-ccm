@@ -31,9 +31,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import org.cougaar.core.blackboard.IncrementalSubscription;
@@ -47,8 +49,11 @@ import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.ThreadService;
 import org.cougaar.core.service.UIDService;
+import org.cougaar.core.service.community.Community;
 import org.cougaar.core.service.community.CommunityChangeEvent;
 import org.cougaar.core.service.community.CommunityChangeListener;
+import org.cougaar.core.service.community.CommunityResponse;
+import org.cougaar.core.service.community.CommunityResponseListener;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.multicast.AttributeBasedAddress;
 import org.cougaar.planning.ldm.PlanningFactory;
@@ -68,9 +73,9 @@ import com.cougaarsoftware.config.lp.NewConfigurationDirective;
  * @author mabrams
  * 
  * @param UPDATE_INTERVAL_PARAM -
- *                 interval between sending configuration updates
+ *            interval between sending configuration updates
  * @param CONFIG_COMMUNITY_PARAM -
- *                 the community to send configuration updates from this agent to
+ *            the community to send configuration updates from this agent to
  */
 public class AgentConfigurationPlugin extends ParameterizedPlugin {
 
@@ -156,7 +161,7 @@ public class AgentConfigurationPlugin extends ParameterizedPlugin {
      * Set LoggingService at load time
      * 
      * @param service
-     *                 LoggingService
+     *            LoggingService
      */
     public void setLoggingService(LoggingService service) {
         this.logging = service;
@@ -200,7 +205,7 @@ public class AgentConfigurationPlugin extends ParameterizedPlugin {
      * set UIDService at load time
      * 
      * @param service
-     *                 UIDService
+     *            UIDService
      */
     public void setUIDService(UIDService service) {
         this.uidService = service;
@@ -219,7 +224,7 @@ public class AgentConfigurationPlugin extends ParameterizedPlugin {
      * set DomainService at load time
      * 
      * @param service
-     *                 DomainService
+     *            DomainService
      */
     public void setDomainService(DomainService service) {
         this.domainService = service;
@@ -270,24 +275,52 @@ public class AgentConfigurationPlugin extends ParameterizedPlugin {
 
     private boolean hasConfigManager = false;
 
+    CommunityChangeListener changeListener = new CommunityChangeListener() {
+
+        public void communityChanged(CommunityChangeEvent cce) {
+            if (cce.getCommunity().getEntities().size() > 0) {
+                hasConfigManager = true;
+            }
+
+        }
+
+        public String getCommunityName() {
+            return configCommunity;
+        }
+    };
+
     protected void setupSubscriptions() {
         if (logging.isDebugEnabled()) {
             logging.debug(agentId.getAddress() + ": Setting up subscriptions");
         }
+
         if (configCommunity != null) {
-            communityService.addListener(new CommunityChangeListener() {
 
-                public void communityChanged(CommunityChangeEvent cce) {
-                    if (cce.getCommunity().getEntities().size() > 0) {
-                        hasConfigManager = true;
-                    }
+            Collection comColl = communityService.searchCommunity(
+                    configCommunity, "(Role=Manager)", true, Community.AGENTS_ONLY,
+                    new CommunityResponseListener() {
 
-                }
+                        public void getResponse(CommunityResponse response) {
+                            if (response instanceof HashSet) {
+                                Set responseSet = (HashSet) response;
+                                // for now, just return the first provider if
+                                // more than one
+                                // exist
+                                if (responseSet != null
+                                        && !responseSet.isEmpty()) {
+                                    hasConfigManager = true;
+                                    communityService
+                                            .removeListener(changeListener);
+                                }
+                            }
 
-                public String getCommunityName() {
-                    return configCommunity;
-                }
-            });
+                        }
+                    });
+            if (comColl != null) {
+                hasConfigManager = true;
+            } else {
+                communityService.addListener(changeListener);
+            }
         }
         configFactory = (ConfigurationFactory) getDomainService().getFactory(
                 ConfigurationDomain.DOMAIN_NAME);
@@ -338,7 +371,7 @@ public class AgentConfigurationPlugin extends ParameterizedPlugin {
         if (logging.isDebugEnabled()) {
             logging.debug(agentId.getAddress() + ": Executing");
         }
-        //handle tasks to update and send agent configuration
+        // handle tasks to update and send agent configuration
         if (agentUpdateSubscription != null && hasConfigManager) {
             Enumeration e = agentUpdateSubscription.getAddedList();
             while (e.hasMoreElements()) {
@@ -378,7 +411,7 @@ public class AgentConfigurationPlugin extends ParameterizedPlugin {
         agentComponent.setParentNode(getNodeIdentificationService()
                 .getMessageAddress().getAddress());
         for (int i = 0; i < size; i++) {
-         
+
             StateTuple tuple = (StateTuple) pluginTuples.get(i);
             ComponentDescription plugin = tuple.getComponentDescription();
             if (currentComponents == null) {
@@ -397,7 +430,7 @@ public class AgentConfigurationPlugin extends ParameterizedPlugin {
                 i.remove();
             }
         }
-        //add the commands
+        // add the commands
         agentComponent.setCommands(commands);
 
         if (agentComponent != null) {
