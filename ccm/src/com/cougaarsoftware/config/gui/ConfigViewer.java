@@ -32,6 +32,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -351,13 +352,12 @@ public class ConfigViewer extends JFrame {
 		}
 
 		protected void populateTree(Society society) {
-			Map nodeMap = society.getNodeMap();
 			rootNode.setUserObject(society);
-			if (nodeMap != null) {
-				Set keys = nodeMap.keySet();
-				Iterator i = keys.iterator();
+			Collection nodes = society.getNodeComponents();
+			if (nodes != null) {
+				Iterator i = nodes.iterator();
 				while (i.hasNext()) {
-					updateNodeComponent((NodeComponent) nodeMap.get(i.next()));
+					updateNodeComponent((NodeComponent) i.next());
 				}
 			}
 		}
@@ -473,6 +473,7 @@ public class ConfigViewer extends JFrame {
 				return;
 			Object nodeInfo = node.getUserObject();
 			if (nodeInfo instanceof Component) {
+				graphPanel.displayGraph((Component)nodeInfo);				
 				graphPanel.setFocus(((Component) nodeInfo).getName());
 			} else if (nodeInfo instanceof String) {
 				graphPanel.setFocus((String) nodeInfo);

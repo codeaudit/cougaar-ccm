@@ -23,6 +23,7 @@
  * </copyright>
  */
 package com.cougaarsoftware.config.gui;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -41,6 +42,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollBar;
 import javax.swing.JTextPane;
 import javax.swing.ToolTipManager;
+import com.cougaarsoftware.config.Component;
 import com.cougaarsoftware.config.Society;
 import com.touchgraph.graphlayout.Node;
 import com.touchgraph.graphlayout.TGAbstractLens;
@@ -51,6 +53,7 @@ import com.touchgraph.graphlayout.graphelements.GraphEltSet;
 import com.touchgraph.graphlayout.interaction.HVScroll;
 import com.touchgraph.graphlayout.interaction.TGUIManager;
 import com.touchgraph.graphlayout.interaction.ZoomScroll;
+
 /**
  * the main gui for viewing cougaar societies from within cougaar
  * 
@@ -64,8 +67,6 @@ public class ConfigViewerGUI extends JPanel {
 	protected ZoomScroll zoomScroll;
 	protected HVScroll hvScroll;
 	protected Stack browseHistory = new Stack();
-	protected JComboBox maxAddCombo;
-	protected JComboBox maxExpandCombo;
 	protected JComboBox localityRadiusCombo;
 	protected String selectedComponentName;
 	protected JTextPane textPane;
@@ -74,6 +75,7 @@ public class ConfigViewerGUI extends JPanel {
 	public static int INITIAL_RADIUS = -1;
 	public static boolean INITIAL_SHOW_BACKLINKS = false;
 	private TGUIManager tgUIManager;
+
 	/**
 	 * Creates a new ConfigViewerGUI object.
 	 * 
@@ -85,6 +87,7 @@ public class ConfigViewerGUI extends JPanel {
 		this.controller = controller;
 		initGUI();
 	}
+
 	/**
 	 * construct GUI
 	 */
@@ -106,12 +109,14 @@ public class ConfigViewerGUI extends JPanel {
 		cvp.fastFinishAnimation();
 		cvp.resetDamper();
 	}
+
 	private void addUIs() {
 		tgUIManager = new TGUIManager();
 		ConfigNavigateUI navigateUI = new ConfigNavigateUI(this);
 		tgUIManager.addUI(navigateUI, "Configuration");
 		tgUIManager.activate("Configuration");
 	}
+
 	/**
 	 *  
 	 */
@@ -121,6 +126,7 @@ public class ConfigViewerGUI extends JPanel {
 		tgLensSet.addLens(new HorizontalStretchLens());
 		tgLensSet.addLens(cvp.getAdjustOriginLens());
 	}
+
 	/**
 	 * DOCUMENT ME!
 	 * 
@@ -129,11 +135,20 @@ public class ConfigViewerGUI extends JPanel {
 	public String getPanelName() {
 		return "ConfigViewer";
 	}
+
+	public void displayGraph(Component c) {
+		Society society = controller.getSocietyConfiguration(false);
+		cvp.setSociety(society);
+		cvp.processConfiguration(c);
+		cvp.repaint();
+	}
+
 	/**
 	 * DOCUMENT ME!
 	 */
 	public void prepareForDisplay() {
 	}
+
 	private void buildPanel() {
 		final JScrollBar horizontalSB = hvScroll.getHorizontalSB();
 		final JScrollBar verticalSB = hvScroll.getVerticalSB();
@@ -146,33 +161,9 @@ public class ConfigViewerGUI extends JPanel {
 		GridBagConstraints c = new GridBagConstraints();
 		final JPanel topPanel = new JPanel();
 		topPanel.setLayout(new GridBagLayout());
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 0;
-		c.weightx = 0;
-		c.insets = new Insets(0, 5, 0, 10);
-		JButton button = new JButton("Refresh Graph");
-		button.setActionCommand("finish");
-		button.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				Society society = controller.getSocietyConfiguration(false);
-				cvp.setSociety(society);
-				cvp.processConfiguration(society);
-				cvp.repaint();
-			}
-		});
-		topPanel.add(button, c);
-		maxAddCombo = new JComboBox(new String[]{"25", "30", "35", "40", "50",
-				"60", "100", "200"});
-		maxExpandCombo = new JComboBox(new String[]{"10", "15", "20", "25", "30",
-				"40", "50", "70", "100"});
 		localityRadiusCombo = new JComboBox(new String[]{"0", "1", "2", "3", "4",
 				"5", "6"});
-		maxAddCombo.setSelectedIndex(3);
-		maxExpandCombo.setSelectedIndex(3);
-		localityRadiusCombo.setSelectedIndex(2);
-		maxAddCombo.setToolTipText("Don't show nodes with more E# of edges");
-		maxExpandCombo
-				.setToolTipText("Don't expand nodes with more then E# of edges");
+		localityRadiusCombo.setSelectedIndex(1);
 		localityRadiusCombo
 				.setToolTipText("Show nodes reachable by following Radius# edges");
 		ActionListener setLocaleAL = new ActionListener() {
@@ -180,25 +171,8 @@ public class ConfigViewerGUI extends JPanel {
 				setLocale(cvp.getSelect());
 			}
 		};
-		maxAddCombo.addActionListener(setLocaleAL);
-		maxExpandCombo.addActionListener(setLocaleAL);
 		localityRadiusCombo.addActionListener(setLocaleAL);
-		maxAddCombo.setPreferredSize(new Dimension(50, 20));
-		maxExpandCombo.setPreferredSize(new Dimension(50, 20));
 		localityRadiusCombo.setPreferredSize(new Dimension(50, 20));
-		c.gridx = 4;
-		c.weightx = 0;
-		topPanel.add(new Label("Show E#", Label.RIGHT), c);
-		c.gridx = 5;
-		c.weightx = 0;
-		c.insets = new Insets(0, 0, 0, 0);
-		topPanel.add(maxAddCombo, c);
-		c.gridx = 6;
-		c.weightx = 0;
-		topPanel.add(new Label("Expand E#", Label.RIGHT), c);
-		c.gridx = 7;
-		c.weightx = 0;
-		topPanel.add(maxExpandCombo, c);
 		c.gridx = 8;
 		c.weightx = 0;
 		topPanel.add(new Label("Radius", Label.RIGHT), c);
@@ -235,6 +209,7 @@ public class ConfigViewerGUI extends JPanel {
 		JMenuItem menuItem = new JMenuItem("Toggle Controls");
 		ActionListener toggleControlsAction = new ActionListener() {
 			boolean controlsVisible = true;
+
 			public void actionPerformed(ActionEvent e) {
 				controlsVisible = !controlsVisible;
 				horizontalSB.setVisible(controlsVisible);
@@ -245,6 +220,7 @@ public class ConfigViewerGUI extends JPanel {
 		menuItem.addActionListener(toggleControlsAction);
 		popupMenu.add(menuItem);
 	}
+
 	public void setTextPane(String label) {
 		selectedComponentName = label;
 		new Thread() {
@@ -253,19 +229,13 @@ public class ConfigViewerGUI extends JPanel {
 			}
 		}.start();
 	}
+
 	public void setLocale(Node n) {
 		try {
-			if (maxAddCombo != null && maxExpandCombo != null) {
-				int localityRadius = Integer.parseInt((String) localityRadiusCombo
-						.getSelectedItem());
-				int maxAddEdgeCount = Integer.parseInt((String) maxAddCombo
-						.getSelectedItem());
-				int maxExpandEdgeCount = Integer.parseInt((String) maxExpandCombo
-						.getSelectedItem());
-				cvp.setLocale(n, localityRadius, maxAddEdgeCount, maxExpandEdgeCount,
-						false);
-				cvp.setSelect(n);
-			}
+			int localityRadius = Integer.parseInt((String) localityRadiusCombo
+					.getSelectedItem());
+			cvp.setLocale(n, localityRadius);
+			cvp.setSelect(n);
 		} catch (TGException tge) {
 			tge.printStackTrace();
 		}
@@ -274,16 +244,19 @@ public class ConfigViewerGUI extends JPanel {
 		protected void applyLens(TGPoint2D p) {
 			p.x = p.x * 1.5;
 		}
+
 		protected void undoLens(TGPoint2D p) {
 			p.x = p.x / 1.5;
 		}
 	}
+
 	/**
 	 * @return
 	 */
 	public TGConfigurationViewPanel getTGConfigurationViewPanel() {
 		return cvp;
 	}
+
 	/**
 	 * @param component
 	 */
@@ -294,6 +267,7 @@ public class ConfigViewerGUI extends JPanel {
 			cvp.repaint();
 		}
 	}
+
 	/**
 	 *  
 	 */

@@ -24,6 +24,7 @@
  */
 package com.cougaarsoftware.config.gui;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -54,17 +55,9 @@ public class TGConfigurationViewPanel extends TGPanel {
 	}
 
 	/**
-	 * remove all nodes and rebuild graph; called after changing the configuration
-	 */
-	public void rebuildGraph(Society society) {
-		clearAll();
-		processConfiguration(society);
-	}
-
-	/**
 	 * build the graph of the configuration
 	 */
-	public void processConfiguration(Society society) {
+	public boolean processConfiguration(Society society) {
 		try {
 			if (society != null) {
 				ConfigNode societyNode = (ConfigNode) gui.completeEltSet
@@ -74,21 +67,20 @@ public class TGConfigurationViewPanel extends TGPanel {
 							ConfigNode.COMPONENT_TYPE);
 					gui.completeEltSet.addNode(societyNode);
 				}
-				Map nodeMap = society.getNodeMap();
-				if (nodeMap != null) {
-					Set keys = nodeMap.keySet();
-					Iterator nodeIter = keys.iterator();
+				Collection nodes = society.getNodeComponents();
+				if (nodes != null) {
+					Iterator nodeIter = nodes.iterator();
 					while (nodeIter.hasNext()) {
-						String nodeName = (String) nodeIter.next();
-						NodeComponent node = (NodeComponent) nodeMap.get(nodeName);
-						processNode(node, societyNode, nodeName);
+						NodeComponent node = (NodeComponent) nodeIter.next();
+						processNode(node, societyNode, node.getName());
 					}
 				}
 			}
 		} catch (TGException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return false;
 		}
+		return true;
 	}
 
 	private ConfigNode addNodeNode(ConfigNode nodeNode, ConfigNode societyNode,
@@ -96,22 +88,26 @@ public class TGConfigurationViewPanel extends TGPanel {
 		nodeNode = new ConfigNode(nodeName, getShortName(nodeName),
 				ConfigNode.NODE_TYPE);
 		gui.completeEltSet.addNode(nodeNode);
-		ConfigEdge edge = new ConfigEdge(societyNode, nodeNode, 30);
-		gui.completeEltSet.addEdge(edge);
-		nodeNode.setType(ConfigNode.TYPE_ELLIPSE);
+		if (societyNode != null) {
+			ConfigEdge edge = new ConfigEdge(societyNode, nodeNode, 30);
+			gui.completeEltSet.addEdge(edge);
+			nodeNode.setType(ConfigNode.TYPE_ELLIPSE);
+		}
 		return nodeNode;
 	}
 
-	private Vector getExistingAgents(ConfigNode node) {		
+	private Vector getExistingAgents(ConfigNode node) {
 		Iterator i = node.getEdges();
 		Vector oldAgents = null;
-		while (i.hasNext()) {
-			ConfigEdge configEdge = (ConfigEdge) i.next();
-			if (configEdge.getFrom().equals(node)) {
-				if (oldAgents == null) {
-					oldAgents = new Vector();
+		if (i != null) {
+			while (i.hasNext()) {
+				ConfigEdge configEdge = (ConfigEdge) i.next();
+				if (configEdge.getFrom().equals(node)) {
+					if (oldAgents == null) {
+						oldAgents = new Vector();
+					}
+					oldAgents.add(configEdge.getTo());
 				}
-				oldAgents.add(configEdge.getTo());
 			}
 		}
 		i = null;
@@ -124,15 +120,14 @@ public class TGConfigurationViewPanel extends TGPanel {
 	private void processNode(NodeComponent node, ConfigNode societyNode,
 			String nodeName) throws TGException {
 		ConfigNode nodeNode = (ConfigNode) gui.completeEltSet.findNode(nodeName);
-		if (nodeNode == null && node.getStatus() == Component.HEALTHY
-				|| node.getStatus() == Component.UNKNOWN) {
+		int status = node.getStatus();
+		if (nodeNode == null && status == Component.HEALTHY
+				|| status == Component.UNKNOWN) {
 			nodeNode = addNodeNode(nodeNode, societyNode, nodeName);
-		} else if (nodeNode != null && node.getStatus() == Component.DEAD) {
+		} else if (nodeNode != null && status == Component.DEAD) {
 			gui.completeEltSet.deleteNode(nodeNode);
 		}
-		if (node.getStatus() == Component.HEALTHY
-				|| node.getStatus() == Component.UNKNOWN) {
-			
+		if (status == Component.HEALTHY || status == Component.UNKNOWN) {
 			Vector oldAgents = null;
 			if (nodeNode != null) {
 				oldAgents = getExistingAgents(nodeNode);
@@ -157,7 +152,7 @@ public class TGConfigurationViewPanel extends TGPanel {
 			}
 			checkForRemovedNodes(newAgents, oldAgents);
 		}
-		if (this.getAllNodes().hasNext()) {
+		if (this.getAllNodes() != null && this.getAllNodes().hasNext()) {
 			ConfigNode initialNode = (ConfigNode) this.getAllNodes().next();
 			if (initialNode != null) {
 				this.setSelect(initialNode);
@@ -193,36 +188,40 @@ public class TGConfigurationViewPanel extends TGPanel {
 	 */
 	private void processAgent(ConfigNode agentNode, AgentComponent ac,
 			ConfigNode nodeNode, String agentName) throws TGException {
-		if (agentNode == null && ac.getStatus() == Component.HEALTHY
-				|| ac.getStatus() == Component.UNKNOWN) {
+		int status = ac.getStatus();
+		if (agentNode == null && status == Component.HEALTHY
+				|| status == Component.UNKNOWN) {
 			agentNode = new ConfigNode(agentName, getShortName(agentName),
 					ConfigNode.AGENT_TYPE, ac.getMessageAddress(), ac.getCommands());
 			gui.completeEltSet.addNode(agentNode);
 			agentNode.setType(ConfigNode.TYPE_ROUNDRECT);
 			ConfigEdge edge = new ConfigEdge(nodeNode, agentNode, 40);
 			gui.completeEltSet.addEdge(edge);
-		} else if (agentNode != null && ac.getStatus() == Component.DEAD) {
+		} else if (agentNode != null && status == Component.DEAD) {
 			gui.completeEltSet.deleteNode(agentNode);
 		}
-		if (ac.getStatus() == Component.HEALTHY
-				|| ac.getStatus() == Component.UNKNOWN) {
-			Iterator agentCompIter = ac.getChildComponents().iterator();
-			while (agentCompIter.hasNext()) {
-				ComponentDescription cd = (ComponentDescription) agentCompIter.next();
-				ConfigNode compNode = (ConfigNode) gui.completeEltSet.findNode(nodeNode
-						.getLabel()
-						+ "." + agentName + "." + cd.getName());
-				if (compNode == null) {
-					compNode = new ConfigNode(nodeNode.getLabel() + "." + agentName + "."
-							+ cd.getName(), getShortName(cd.getName()),
-							ConfigNode.COMPONENT_TYPE);
-					gui.completeEltSet.addNode(compNode);
-					compNode.setType(ConfigNode.TYPE_RECTANGLE);
-					ConfigEdge edge = new ConfigEdge(agentNode, compNode, 70);
-					gui.completeEltSet.addEdge(edge);
+		if (status == Component.HEALTHY || status == Component.UNKNOWN) {
+			Vector childComponents = ac.getChildComponents();
+			if (childComponents != null) {
+				Iterator agentCompIter = ac.getChildComponents().iterator();
+				while (agentCompIter.hasNext()) {
+					ComponentDescription cd = (ComponentDescription) agentCompIter.next();
+					String cName = cd.getName();
+					ConfigNode compNode = (ConfigNode) gui.completeEltSet
+							.findNode(nodeNode.getLabel() + "." + agentName + "." + cName);
+					if (compNode == null) {
+						compNode = new ConfigNode(nodeNode.getLabel() + "." + agentName
+								+ "." + cd.getName(), getShortName(cName),
+								ConfigNode.COMPONENT_TYPE);
+						gui.completeEltSet.addNode(compNode);
+						compNode.setType(ConfigNode.TYPE_RECTANGLE);
+						ConfigEdge edge = new ConfigEdge(agentNode, compNode, 70);
+						//						gui.completeEltSet.addEdge(edge);
+						gui.completeEltSet.addEdge(edge);
+					}
 				}
+				agentCompIter = null;
 			}
-			agentCompIter = null;
 		}
 	}
 
@@ -253,5 +252,27 @@ public class TGConfigurationViewPanel extends TGPanel {
 	 */
 	public void setSociety(com.cougaarsoftware.config.Society society) {
 		this.society = society;
+	}
+
+	/**
+	 * @param nc
+	 */
+	public void processConfiguration(Component comp) {
+		try {
+			NodeComponent nc = null;
+			if (comp instanceof NodeComponent) {
+				nc = (NodeComponent) comp;
+			} else if (comp instanceof AgentComponent) {
+				AgentComponent ac = (AgentComponent) comp;
+				String parentNode = ac.getParentNode();
+				nc = society.getNode(parentNode);
+			}
+			if (nc != null) {
+				processNode(nc, null, nc.getName());
+			}
+		} catch (TGException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

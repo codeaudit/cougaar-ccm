@@ -23,14 +23,14 @@
  * </copyright>
  */
 package com.cougaarsoftware.config;
+
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
@@ -57,6 +57,7 @@ import com.cougaarsoftware.config.domain.ConfigurationDomain;
 import com.cougaarsoftware.config.domain.ConfigurationFactory;
 import com.cougaarsoftware.config.lp.ConfigurationDirective;
 import com.cougaarsoftware.config.lp.NewConfigurationDirective;
+
 /**
  * @author mabrams
  * 
@@ -137,7 +138,7 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 	/**
 	 * subscription to agent configuration update tasks
 	 */
-	private IncrementalSubscription societyUpdateSubscription;	
+	private IncrementalSubscription societyUpdateSubscription;
 	private NodeIdentificationService nodeIdentificationService;
 	private UIDService uidService;
 	private DomainService domainService;
@@ -146,6 +147,7 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 	 * hastable of components this plugin is tracking
 	 */
 	private Hashtable trackers = new Hashtable();
+
 	/**
 	 * Set LoggingService at load time
 	 * 
@@ -155,6 +157,7 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 	public void setLoggingService(LoggingService service) {
 		this.logging = service;
 	}
+
 	/**
 	 * Get LoggingService
 	 * 
@@ -163,6 +166,7 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 	public LoggingService getLoggingService() {
 		return this.logging;
 	}
+
 	/**
 	 * set DomainService at load time
 	 * 
@@ -172,6 +176,7 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 	public void setDomainService(DomainService service) {
 		this.domainService = service;
 	}
+
 	/**
 	 * Get DomainService
 	 * 
@@ -180,6 +185,7 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 	public DomainService getDomainService() {
 		return this.domainService;
 	}
+
 	/**
 	 * Conveience method for getting the PlanningFactory
 	 * 
@@ -188,6 +194,7 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 	protected PlanningFactory getPlanningFactory() {
 		return ((PlanningFactory) getDomainService().getFactory("planning"));
 	}
+
 	/**
 	 * set UIDService at load time
 	 * 
@@ -197,6 +204,7 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 	public void setUIDService(UIDService service) {
 		this.uidService = service;
 	}
+
 	/**
 	 * Get UIDService
 	 * 
@@ -205,6 +213,7 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 	public UIDService getUIDService() {
 		return this.uidService;
 	}
+
 	/**
 	 * Get a reference to the community service
 	 * 
@@ -213,6 +222,7 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 	public CommunityService getCommunityService() {
 		return this.communityService;
 	}
+
 	/**
 	 * Set community service at load time
 	 * 
@@ -222,19 +232,24 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 	public void setCommunityService(CommunityService service) {
 		this.communityService = service;
 	}
+
 	public NodeIdentificationService getNodeIdentificationService() {
 		return this.nodeIdentificationService;
 	}
+
 	public void setNodeIdentificationService(
 			NodeIdentificationService nodeIDService) {
 		this.nodeIdentificationService = nodeIDService;
 	}
+
 	public void setThreadService(ThreadService s) {
 		this.threadService = s;
 	}
+
 	public ThreadService getThreadService() {
 		return this.threadService;
 	}
+
 	/**
 	 * call the super load and get the parameters for this plugin
 	 */
@@ -256,6 +271,7 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 				new ComponentTrackerThread());
 		sched.schedule(0, 10000);
 	}
+
 	protected void setupSubscriptions() {
 		agentConfigurationSubscription = (IncrementalSubscription) getBlackboardService()
 				.subscribe(agentConfigurationPredicate);
@@ -278,12 +294,14 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 		configFactory = (ConfigurationFactory) getDomainService().getFactory(
 				ConfigurationDomain.DOMAIN_NAME);
 	}
+
 	protected void execute() {
 		processAgentConfigurations(agentConfigurationSubscription.getAddedList());
 		processSocietyConfigurations(societyConfigurationSubscription
 				.getAddedList());
 		processSocietyConfigUpdateTasks(societyUpdateSubscription.getAddedList());
 	}
+
 	/**
 	 * @param enumeration
 	 */
@@ -294,6 +312,7 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 			getBlackboardService().publishRemove(t);
 		}
 	}
+
 	/**
 	 * @param enumeration
 	 */
@@ -305,34 +324,30 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 			getBlackboardService().publishRemove(societyWrapper);
 			Society society = societyWrapper.getSociety();
 			if (!society.equals(localSociety)) {
-				Map nodeMap = society.getNodeMap();
-				if (nodeMap != null) {
-					Set keys = nodeMap.keySet();
-					Iterator i = keys.iterator();
-					synchronized (nodeMap) {
-						while (i.hasNext()) {
-							String nodeName = (String) i.next();
-							NodeComponent node = (NodeComponent) nodeMap.get(nodeName);
-							node.setStatus(Component.HEALTHY);
-							ComponentTracker tracker = (ComponentTracker) trackers.get(node
-									.getName());
-							if (logging.isDebugEnabled()) {
-								logging.debug("Configuration seen for component: " + node);
-							}
-							if (tracker == null) {
-								tracker = new ComponentTracker(node);
-								trackers.put(node.getName(), tracker);
-							} else {
-								tracker.incrementReadCount();
-								tracker.setLastReadTime(Calendar.getInstance());
-								tracker.setComponent(node);
-							}
-							NodeComponent oNode = localSociety.getNode(node.getName());
-							if (!node.equals(oNode)) {
-								localSociety.addNode(node);
-								societyModifed = true;
-								publishNodeUpdateTask(node);
-							}
+				Collection c = society.getNodeComponents();
+				if (c != null) {
+					Iterator i = c.iterator();
+					while (i.hasNext()) {
+						NodeComponent node = (NodeComponent) i.next();
+						node.setStatus(Component.HEALTHY);
+						ComponentTracker tracker = (ComponentTracker) trackers.get(node
+								.getName());
+						if (logging.isDebugEnabled()) {
+							logging.debug("Configuration seen for component: " + node);
+						}
+						if (tracker == null) {
+							tracker = new ComponentTracker(node);
+							trackers.put(node.getName(), tracker);
+						} else {
+							tracker.incrementReadCount();
+							tracker.setLastReadTime(Calendar.getInstance());
+							tracker.setComponent(node);
+						}
+						NodeComponent oNode = localSociety.getNode(node.getName());
+						if (!node.equals(oNode)) {
+							localSociety.addNode(node);
+							societyModifed = true;
+							publishNodeUpdateTask(node);
 						}
 					}
 				}
@@ -343,6 +358,7 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 			sendConfiguration();
 		}
 	}
+
 	/**
 	 * @param enumeration
 	 */
@@ -415,22 +431,26 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 			sendConfiguration();
 		}
 	}
+
 	/**
 	 * @param agentComponent
 	 */
 	private void sendConfiguration() {
-		getBlackboardService().publishChange(localSociety);
-		if (localSociety != null && parentConfigCommunity != null) {
-			NewConfigurationDirective ncd = configFactory
-					.createNewConfigurationDirective();
-			MessageAddress target = AttributeBasedAddress.getAttributeBasedAddress(
-					parentConfigCommunity, "Role", "Manager");
-			ncd.setDestination(target);
-			ncd.setPayload(new SocietyWrapper(localSociety, uidService.nextUID()));
-			ncd.setType(ConfigurationDirective.SOCIETY_CONFIGURATION);
-			getBlackboardService().publishAdd(ncd);
+		synchronized (localSociety) {
+			if (localSociety != null && parentConfigCommunity != null) {
+				NewConfigurationDirective ncd = configFactory
+						.createNewConfigurationDirective();
+				MessageAddress target = AttributeBasedAddress.getAttributeBasedAddress(
+						parentConfigCommunity, "Role", "Manager");
+				ncd.setDestination(target);
+				ncd.setPayload(new SocietyWrapper(localSociety, uidService.nextUID()));
+				ncd.setType(ConfigurationDirective.SOCIETY_CONFIGURATION);
+				getBlackboardService().publishAdd(ncd);
+			}
 		}
+		getBlackboardService().publishChange(localSociety);
 	}
+
 	private void publishAgentUpdateTask(AgentComponent agentComponent) {
 		NewTask updateAgentTask = getPlanningFactory().newTask();
 		updateAgentTask.setVerb(Constants.Verb.UPDATE_AGENT_CONFIG_TASK);
@@ -440,6 +460,7 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 		updateAgentTask.addPrepositionalPhrase(pp);
 		getBlackboardService().publishAdd(updateAgentTask);
 	}
+
 	private void publishNodeUpdateTask(NodeComponent nodeComponent) {
 		NewTask updateNodeTask = getPlanningFactory().newTask();
 		updateNodeTask.setVerb(Constants.Verb.UPDATE_NODE_CONFIG_TASK);
@@ -465,6 +486,7 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 			return o instanceof SocietyWrapper;
 		}
 	};
+
 	/**
 	 * have the agent this plugin is on join community
 	 */
@@ -482,6 +504,7 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 				.getAddress(), CommunityService.AGENT, roleAttributes, true, null,
 				new MyCommunityResponseListener());
 	}
+
 	private void createLocalSociety() {
 		localSociety = new SocietyImpl(this.getAgentIdentifier().getAddress() + "."
 				+ this.getClass().getName(), getUIDService().nextUID());
@@ -508,13 +531,16 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 	 */
 	private class PublishAddObject implements Runnable {
 		List list = null;
+
 		public PublishAddObject(List publishList) {
 			this.list = publishList;
 		}
+
 		public PublishAddObject(Object a) {
 			list = new ArrayList();
 			list.add(a);
 		}
+
 		public void run() {
 			if (list != null && getBlackboardService() != null) {
 				getBlackboardService().openTransaction();
@@ -556,22 +582,26 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 		 * the component this information is for
 		 */
 		private Object component;
+
 		public ComponentTracker(Object component) {
 			this.component = component;
 			lastReadTime = Calendar.getInstance();
 		}
+
 		/**
 		 * increment read count
 		 */
 		public void incrementReadCount() {
 			setReadCount(readCount + 1);
 		}
+
 		/**
 		 * @return Returns the component.
 		 */
 		public Object getComponent() {
 			return component;
 		}
+
 		/**
 		 * @param component
 		 *          The component to set.
@@ -579,12 +609,14 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 		public void setComponent(Object component) {
 			this.component = component;
 		}
+
 		/**
 		 * @return Returns the lastReadTime.
 		 */
 		public Calendar getLastReadTime() {
 			return lastReadTime;
 		}
+
 		/**
 		 * @param lastReadTime
 		 *          The lastReadTime to set.
@@ -592,12 +624,14 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 		public void setLastReadTime(Calendar lastReadTime) {
 			this.lastReadTime = lastReadTime;
 		}
+
 		/**
 		 * @return Returns the readCount.
 		 */
 		public int getReadCount() {
 			return readCount;
 		}
+
 		/**
 		 * @param readCount
 		 *          The readCount to set.
@@ -653,6 +687,7 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 				}
 			}
 		}
+
 		private void publishUpdateTask(Component component) {
 			try {
 				getBlackboardService().openTransaction();

@@ -23,30 +23,38 @@
  * </copyright>
  */
 package com.cougaarsoftware.config;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.cougaar.core.util.UID;
+
 /**
  * @author mabrams
  * 
  * implementation of the society container
  */
 public class SocietyImpl extends ComponentImpl implements Society {
-	Map nodeMap;
+	private Map nodeMap;
+
 	public SocietyImpl(String name, UID uid) {
 		super(name, uid);
 	}
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.cougaarsoftware.config.Society#getNodeList()
-	 */
-	public Map getNodeMap() {
-		return nodeMap;
-	}
+
+	//	/*
+	//	 * (non-Javadoc)
+	//	 *
+	//	 * @see com.cougaarsoftware.config.Society#getNodeList()
+	//	 */
+	//	public Map getNodeMap() {
+	//		return nodeMap;
+	//	}
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -56,6 +64,7 @@ public class SocietyImpl extends ComponentImpl implements Society {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -67,6 +76,7 @@ public class SocietyImpl extends ComponentImpl implements Society {
 		}
 		return (NodeComponent) nodeMap.put(node.getName(), node);
 	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -78,6 +88,7 @@ public class SocietyImpl extends ComponentImpl implements Society {
 		}
 		return null;
 	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -89,6 +100,7 @@ public class SocietyImpl extends ComponentImpl implements Society {
 		}
 		return null;
 	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -101,6 +113,7 @@ public class SocietyImpl extends ComponentImpl implements Society {
 		}
 		return false;
 	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -113,6 +126,7 @@ public class SocietyImpl extends ComponentImpl implements Society {
 		}
 		return null;
 	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -135,4 +149,27 @@ public class SocietyImpl extends ComponentImpl implements Society {
 		}
 		return null;
 	}
+
+	/* (non-Javadoc)
+	 * @see com.cougaarsoftware.config.Society#getNodeComponents()
+	 */
+	public Collection getNodeComponents() {
+		List nodes = null;
+		if (nodeMap != null) {
+			synchronized(nodeMap) {
+				Set keys = nodeMap.keySet();
+				Iterator i = keys.iterator();
+				while (i.hasNext()) {
+					String nodeName = (String) i.next();
+					NodeComponent nc = (NodeComponent) nodeMap.get(nodeName);
+					if (nodes == null) {
+						nodes = new ArrayList();
+					}
+					nodes.add(nc);
+				}
+			}
+		}
+		return nodes;
+	}
+
 }

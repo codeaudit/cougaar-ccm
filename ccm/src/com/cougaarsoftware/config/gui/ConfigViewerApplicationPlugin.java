@@ -301,7 +301,7 @@ public class ConfigViewerApplicationPlugin extends ComponentPlugin {
 			if (society != null) {
 				AgentComponent ac = society.getAgent(agentName);
 				ac.setStatus(Component.DEAD);
-				society.removeAgent(ac);
+//				society.removeAgent(ac);
 				if (configViewer != null) {
 					configViewer.updateAgentData(ac);
 				}

@@ -49,7 +49,25 @@ public class NodeComponentImpl extends ComponentImpl implements NodeComponent {
 	 * @see com.cougaarsoftware.config.NodeComponent#getChildComponents()
 	 */
 	public Map getAgents() {
-		return childComponents;
+		Map agents = null;
+		if (childComponents != null) {
+			Set keys = childComponents.keySet();
+			synchronized (childComponents) {
+				Iterator i = keys.iterator();
+				while (i.hasNext()) {
+					String key = (String)i.next();
+					Object o = childComponents.get(key);
+					if (o instanceof Component) {
+						AgentComponent child = (AgentComponent) o;
+						if (agents == null) {
+							agents = new HashMap();
+						}
+						agents.put(child.getName(), child);
+					}
+				}
+			}
+		}
+		return agents;
 	}
 
 	/*

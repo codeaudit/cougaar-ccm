@@ -23,17 +23,21 @@
  * </copyright>
  */
 package com.cougaarsoftware.config;
-import java.util.Map;
+
+import java.util.Collection;
+
 /**
  * a container for societies and their children
  * 
  * @author mabrams
  */
 public interface Society extends Component {
-	/**
-	 * get a list of the Node Component objects in this society
-	 */
-	public Map getNodeMap();
+//	/**
+//	 * get a list of the Node Component objects in this society
+//	 */
+//	public Map getNodeMap();
+	public Collection getNodeComponents();
+
 	/**
 	 * check to see if the society contains the component
 	 */
