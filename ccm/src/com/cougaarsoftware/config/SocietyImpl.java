@@ -171,5 +171,9 @@ public class SocietyImpl extends ComponentImpl implements Society {
 		}
 		return nodes;
 	}
+	
+	public String toString() {
+	    return getName();
+	}
 
 }
