@@ -1,5 +1,25 @@
 /*
- * <copyright> Copyright 2000-2004 Cougaar Software, Inc. All Rights Reserved
+ * <copyright>
+ * 
+ * Copyright 2000-2004 Cougaar Software, Inc. under sponsorship of the Defense
+ * Advanced Research Projects Agency (DARPA).
+ * 
+ * You can redistribute this software and/or modify it under the terms of the
+ * Cougaar Open Source License as published on the Cougaar Open Source Website
+ * (www.cougaar.org).
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ * 
  * </copyright>
  */
 package com.cougaarsoftware.config.gui.prefuse;
@@ -52,8 +72,10 @@ import edu.berkeley.guir.prefusex.layout.ForceDirectedLayout;
 import edu.berkeley.guir.prefusex.layout.RadialTreeLayout;
 
 /**
+ * Prefuse graph panel for viewing Cougaar societies
+ * 
  * @author mhelmstetter
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  *  
  */
 public class PrefuseViewPanel extends JPanel {
@@ -105,9 +127,6 @@ public class PrefuseViewPanel extends JPanel {
         display.setSize(600, 600);
         display.setBackground(Color.WHITE);
         display.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
-        //display.setFont(curFont);
-        //display.getTextEditor().addKeyListener(controller);
-        //display.addControlListener(controller);
         display.addControlListener(new DragControl(true));
         display.addControlListener(new FocusControl(0));
 
@@ -216,15 +235,7 @@ public class PrefuseViewPanel extends JPanel {
             }
             //checkForRemovedNodes(newAgents, oldAgents);
         }
-        //		if (this.getAllNodes() != null && this.getAllNodes().hasNext()) {
-        //			TGConfigNode initialNode = (TGConfigNode) this.getAllNodes().next();
-        //			if (initialNode != null) {
-        //				this.setSelect(initialNode);
-        //				gui.setLocale(initialNode);
-        //			}
-        //		}
         update();
-
     }
 
     /**
@@ -321,13 +332,6 @@ public class PrefuseViewPanel extends JPanel {
         }
         return shortName;
     }
-
-//    class NodeNodeItem extends NodeItem {
-//
-//        public Paint getFillColor() {
-//            return Color.RED;
-//        }
-//    }
 
     class DemoColorFunction extends ColorFunction {
 
