@@ -36,7 +36,7 @@ public class AgentAdderPlugin extends ComponentPlugin {
      
       ConfigurationService cs = getConfigurationService();
       if (cs != null) {
-          cs.addAgent("agentC", MessageAddress
+          cs.addAgent("TestAgent", MessageAddress
                   .getMessageAddress("TestNode"));         
       }
  

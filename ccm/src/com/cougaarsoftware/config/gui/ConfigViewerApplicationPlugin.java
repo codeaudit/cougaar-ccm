@@ -27,7 +27,9 @@ package com.cougaarsoftware.config.gui;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
+
 import javax.swing.JFrame;
+
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.plugin.ComponentPlugin;
@@ -36,13 +38,13 @@ import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.ThreadService;
 import org.cougaar.planning.ldm.PlanningFactory;
-import org.cougaar.planning.ldm.plan.NewPrepositionalPhrase;
 import org.cougaar.planning.ldm.plan.NewTask;
 import org.cougaar.planning.ldm.plan.PrepositionalPhrase;
 import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.planning.ldm.plan.Verb;
 import org.cougaar.planning.ldm.predicate.TaskPredicate;
 import org.cougaar.util.UnaryPredicate;
+
 import com.cougaarsoftware.config.AgentComponent;
 import com.cougaarsoftware.config.Command;
 import com.cougaarsoftware.config.Component;
@@ -300,14 +302,11 @@ public class ConfigViewerApplicationPlugin extends ComponentPlugin {
 				AgentComponent ac = society.getAgent(agentName);
 				ac.setStatus(Component.DEAD);
 				society.removeAgent(ac);
-				NewTask t = getPlanningFactory().newTask();
-				t.setVerb(Constants.Verb.UPDATE_AGENT_CONFIG_TASK);
-				NewPrepositionalPhrase pp = getPlanningFactory()
-						.newPrepositionalPhrase();
-				pp.setPreposition(Constants.Preposition.AGENT_COMPONENT);
-				pp.setIndirectObject(ac);
-				t.addPrepositionalPhrase(pp);
-				getBlackboardService().publishAdd(t);
+				if (configViewer != null) {
+					configViewer.updateAgentData(ac);
+				}
+				getConfigurationService().removeAgent(cAgentName,
+						MessageAddress.getMessageAddress(ac.getParentNode()));
 			}
 			getBlackboardService().closeTransaction();
 		}

@@ -25,19 +25,7 @@
         priority='COMPONENT'
         insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
       </component>
-      <component
-        name='org.cougaar.core.mobility.service.RedirectMovePlugin()'
-        class='org.cougaar.core.mobility.service.RedirectMovePlugin'
-        priority='COMPONENT'
-        insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
-      </component>
       <agent name="SampleAgent1">       
-       <component
-        name='org.cougaar.core.mobility.service.RootMobilityPlugin()'
-        class='org.cougaar.core.mobility.service.RootMobilityPlugin'
-        priority='COMPONENT'
-        insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
-      </component>
       <component
         name='org.cougaar.core.mobility.service.RedirectMovePlugin()'
         class='org.cougaar.core.mobility.service.RedirectMovePlugin'
@@ -83,12 +71,6 @@
         </component>
       </agent>
       <agent name="SampleAgent2">      
-       <component
-        name='org.cougaar.core.mobility.service.RootMobilityPlugin()'
-        class='org.cougaar.core.mobility.service.RootMobilityPlugin'
-        priority='COMPONENT'
-        insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
-      </component>
       <component class='org.cougaar.community.util.CommunityViewerServlet'>
       </component>
       <component
@@ -133,13 +115,13 @@
         priority='COMPONENT'
         insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
       </component>
-      <component
+      <agent name="SampleAgent3">   
+       <component
         name='org.cougaar.core.mobility.service.RedirectMovePlugin()'
         class='org.cougaar.core.mobility.service.RedirectMovePlugin'
         priority='COMPONENT'
         insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
       </component>
-      <agent name="SampleAgent3">   
        	<component class="com.cougaarsoftware.config.service.ConfigurationServiceComponent"
 		           priority='HIGH'
                    insertionpoint='Node.AgentManager.Agent.ConfigurationService'>
@@ -163,18 +145,7 @@
           priority='COMPONENT'
           insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
         </component>  
-          <component
-        name='org.cougaar.core.mobility.service.RootMobilityPlugin()'
-        class='org.cougaar.core.mobility.service.RootMobilityPlugin'
-        priority='COMPONENT'
-        insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
-      </component>
-      <component
-        name='org.cougaar.core.mobility.service.RedirectMovePlugin()'
-        class='org.cougaar.core.mobility.service.RedirectMovePlugin'
-        priority='COMPONENT'
-        insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
-      </component> 
+    
       </agent>
       <agent name="SampleAgent4">       
        	<component class="com.cougaarsoftware.config.service.ConfigurationServiceComponent"
@@ -205,13 +176,7 @@
           priority='COMPONENT'
           insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
         </component>
-          <component
-        name='org.cougaar.core.mobility.service.RootMobilityPlugin()'
-        class='org.cougaar.core.mobility.service.RootMobilityPlugin'
-        priority='COMPONENT'
-        insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
-      </component>
-      <component
+     <component
         name='org.cougaar.core.mobility.service.RedirectMovePlugin()'
         class='org.cougaar.core.mobility.service.RedirectMovePlugin'
         priority='COMPONENT'

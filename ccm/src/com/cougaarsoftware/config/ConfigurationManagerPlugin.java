@@ -424,7 +424,7 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 			NewConfigurationDirective ncd = configFactory
 					.createNewConfigurationDirective();
 			MessageAddress target = AttributeBasedAddress.getAttributeBasedAddress(
-					parentConfigCommunity, "Role", "Member");
+					parentConfigCommunity, "Role", "Manager");
 			ncd.setDestination(target);
 			ncd.setPayload(new SocietyWrapper(localSociety, uidService.nextUID()));
 			ncd.setType(ConfigurationDirective.SOCIETY_CONFIGURATION);

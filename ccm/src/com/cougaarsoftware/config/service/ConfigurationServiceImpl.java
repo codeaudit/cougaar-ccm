@@ -23,6 +23,7 @@
  * </copyright>
  */
 package com.cougaarsoftware.config.service;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -53,6 +54,7 @@ import org.cougaar.core.service.ThreadService;
 import org.cougaar.core.service.UIDService;
 import com.cougaarsoftware.config.AgentComponent;
 import com.cougaarsoftware.config.Component;
+
 /**
  * implementation of the ConfigurationService interface
  * 
@@ -80,10 +82,12 @@ public class ConfigurationServiceImpl
 	//my listener for services I am interested
 	protected ServiceListener serviceListener;
 	private AgentContainmentService agentContainmentService;
+
 	public ConfigurationServiceImpl(ServiceBroker sb) {
 		this.sb = sb;
 		init();
 	}
+
 	protected void init() {
 		logging = (LoggingService) sb.getService(this, LoggingService.class, null);
 		if (logging == null) {
@@ -127,6 +131,7 @@ public class ConfigurationServiceImpl
 			numberOfServices++;
 		}
 	}
+
 	/**
 	 * Setup services called by a ServiceAvailableListener
 	 * 
@@ -173,6 +178,7 @@ public class ConfigurationServiceImpl
 			numberOfServices--;
 		}
 	}
+
 	/**
 	 * @see com.cougaarsoftware.core.configuration.services.ConfigurationService#addAgent(java.lang.String,
 	 *      org.cougaar.core.mts.MessageAddress)
@@ -186,6 +192,7 @@ public class ConfigurationServiceImpl
 		//add the agent
 		addAgent(agentName, destNodeAgent, desc);
 	}
+
 	/**
 	 * @see com.cougaarsoftware.core.configuration.services.ConfigurationService#removeAgent(java.lang.String,
 	 *      org.cougaar.core.mts.MessageAddress)
@@ -228,12 +235,15 @@ public class ConfigurationServiceImpl
 		public static final int REMOVE_TYPE = 3;
 		private int type;
 		private Collection collection = new ArrayList();
+
 		public BlackboardAccess(int type) {
 			this.type = type;
 		}
+
 		public void addObject(Object o) {
 			collection.add(o);
 		}
+
 		/**
 		 * @see java.lang.Runnable#run()
 		 */
@@ -257,6 +267,7 @@ public class ConfigurationServiceImpl
 			blackboardService.closeTransactionDontReset();
 		}
 	}
+
 	/**
 	 * @see com.cougaarsoftware.core.configuration.services.ConfigurationService#initializeAgent(com.cougaarsoftware.core.configuration.vo.Agent)
 	 */
@@ -266,6 +277,7 @@ public class ConfigurationServiceImpl
 			agentContainmentService.add(cds[i]);
 		}
 	}
+
 	/**
 	 * makes an array of ComponentDescriptions fom a vector of Component value
 	 * objects
@@ -285,6 +297,7 @@ public class ConfigurationServiceImpl
 		}
 		return ret;
 	}
+
 	private ComponentDescription makeComponentDesc(String name, Vector vParams,
 			String classname, String priority, String insertionPoint) {
 		return new ComponentDescription(name, insertionPoint, classname, null, //codebase
@@ -294,18 +307,21 @@ public class ConfigurationServiceImpl
 				null, //policy
 				ComponentDescription.parsePriority(priority));
 	}
+
 	/**
 	 * @see org.cougaar.core.blackboard.BlackboardClient#getBlackboardClientName()
 	 */
 	public String getBlackboardClientName() {
 		return this.getClass().getName();
 	}
+
 	/**
 	 * @see org.cougaar.core.blackboard.BlackboardClient#currentTimeMillis()
 	 */
 	public long currentTimeMillis() {
 		return System.currentTimeMillis();
 	}
+
 	/**
 	 * @see com.cougaarsoftware.core.configuration.services.ConfigurationService#addComponent(com.cougaarsoftware.core.configuration.vo.Component,
 	 *      org.cougaar.core.mts.MessageAddress)
@@ -314,6 +330,7 @@ public class ConfigurationServiceImpl
 		ComponentDescription desc = createComponentDescriptionForPlugin(pluginClassName);
 		addComponent(desc);
 	}
+
 	private void addAgent(String agentName, MessageAddress nodeAgentId,
 			ComponentDescription compDescription) {
 		if (logging.isDebugEnabled()) {
@@ -333,8 +350,8 @@ public class ConfigurationServiceImpl
 		//        if (compDescription != null) {
 		//            st = new StateTuple(compDescription, null);
 		//        }
-		AddTicket addticket = new AddTicket(uidService.nextUID(),
-				mobileAgentAddress, destNodeAddress, compDescription, st);
+		AddTicket addticket = new AddTicket(ticketIdentifier, mobileAgentAddress,
+				destNodeAddress, compDescription, st);
 		//Create Add Agent control
 		AgentControl addControl = mobilityFactory.createAgentControl(null,
 				destNodeAddress, addticket);
@@ -347,6 +364,7 @@ public class ConfigurationServiceImpl
 							+ agentName);
 		}
 	}
+
 	/**
 	 * Create component description
 	 * 
@@ -359,10 +377,11 @@ public class ConfigurationServiceImpl
 			String pluginName) {
 		return new ComponentDescription(pluginName,
 				"Node.AgentManager.Agent.PluginManager.Plugin", pluginName, null, //codebase
-																																					// url
+				// url
 				null, //parameters
 				null, null, null);
 	}
+
 	/**
 	 * @see com.cougaarsoftware.core.configuration.services.ConfigurationService#addComponent(org.cougaar.core.component.ComponentDescription)
 	 */
@@ -373,6 +392,7 @@ public class ConfigurationServiceImpl
 		}
 		agentContainmentService.add(componentDescription);
 	}
+
 	/**
 	 * @see com.cougaarsoftware.core.configuration.services.ConfigurationService#removeComponent(java.lang.String)
 	 */
@@ -393,6 +413,7 @@ public class ConfigurationServiceImpl
 			return false;
 		}
 	}
+
 	private ComponentDescription getComponentDescription(String className) {
 		if (agentContainmentService != null) {
 			List binders = agentContainmentService.listBinders();
