@@ -12,10 +12,13 @@ import com.cougaarsoftware.config.Society;
 
 /**
  * @author mhelmstetter
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  * 
  */
 public interface ConfigViewerController {
+    
+    public final static String PARAM_GRAPH_PANEL_CLASS = "graphPanelClass";
+    
     public String getAgentId();
     
     public void removeAgent(String agentName, String nodeName);
