@@ -56,13 +56,14 @@ import com.cougaarsoftware.config.service.ConfigurationService;
 /**
  * @author mabrams
  */
-public class ConfigViewerApplicationPlugin extends ComponentPlugin {
+public class ConfigViewerApplicationPlugin extends ComponentPlugin implements
+        ConfigViewerController {
 
     protected BlackboardQueryService bbQueryService;
 
     protected ThreadService threadService;
 
-    ConfigViewerPanel configViewer;
+    private ConfigViewerPanel configViewer;
 
     private static UnaryPredicate societyConfigurationPredicate = new UnaryPredicate() {
 
@@ -381,7 +382,7 @@ public class ConfigViewerApplicationPlugin extends ComponentPlugin {
                             + "' not specified.");
         }
     }
-    
+
     public String getGraphPanelClass() {
         return graphPanelClass;
     }

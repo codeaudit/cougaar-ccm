@@ -45,7 +45,7 @@ import javax.swing.ToolTipManager;
 
 import com.cougaarsoftware.config.Component;
 import com.cougaarsoftware.config.Society;
-import com.cougaarsoftware.config.gui.ConfigViewerApplicationPlugin;
+import com.cougaarsoftware.config.gui.ConfigViewerController;
 import com.cougaarsoftware.config.gui.ConfigViewerGraphPanel;
 import com.touchgraph.graphlayout.Node;
 import com.touchgraph.graphlayout.TGAbstractLens;
@@ -84,7 +84,7 @@ public class TGConfigViewerGraphPanel extends ConfigViewerGraphPanel {
 	 * @param controller
 	 *          DOCUMENT ME!
 	 */
-	public TGConfigViewerGraphPanel(ConfigViewerApplicationPlugin controller) {
+	public TGConfigViewerGraphPanel(ConfigViewerController controller) {
 		super(controller);
 	}	
 

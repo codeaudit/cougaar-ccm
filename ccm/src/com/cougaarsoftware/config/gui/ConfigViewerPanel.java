@@ -51,8 +51,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
 import javax.swing.ToolTipManager;
-import javax.swing.event.TreeModelEvent;
-import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -85,7 +83,7 @@ public class ConfigViewerPanel extends JPanel {
     /**
      * cougaar plugin that controls this GUI
      */
-    private ConfigViewerApplicationPlugin controller;
+    private ConfigViewerController controller;
 
     /**
      * the scroll pane containing the tree view of the society
@@ -117,7 +115,7 @@ public class ConfigViewerPanel extends JPanel {
      * @param controller -
      *            the controller plugin for the gui
      */
-    public ConfigViewerPanel(ConfigViewerApplicationPlugin controller) {
+    public ConfigViewerPanel(ConfigViewerController controller) {
         super();
         this.controller = controller;
         //this.setJMenuBar(createMenuBar());
@@ -177,7 +175,7 @@ public class ConfigViewerPanel extends JPanel {
         if (graphPanelClass != null) {
             try {
                 Class cl = Class.forName(graphPanelClass);
-                Class[] paramTypes = { ConfigViewerApplicationPlugin.class};
+                Class[] paramTypes = { ConfigViewerController.class};
                 Constructor constructor = cl.getConstructor(paramTypes);
                 Object[] argList = { controller};
                 graphPanel = (ConfigViewerGraphPanel) constructor
@@ -228,6 +226,10 @@ public class ConfigViewerPanel extends JPanel {
     public void updateNodeData(NodeComponent nodeComponent) {
         treeScrollPane.updateNodeComponent(nodeComponent);
     }
+    
+    public void addComponent(ComponentDescription cd) {
+        
+    }
 
     /**
      * Tree panel containing hierarchical tree of society components
@@ -247,7 +249,7 @@ public class ConfigViewerPanel extends JPanel {
             //Create a tree that allows one selection at a time.
             rootNode = new DefaultMutableTreeNode("Society");
             treeModel = new DefaultTreeModel(rootNode);
-            treeModel.addTreeModelListener(new MyTreeModelListener());
+            //treeModel.addTreeModelListener(new MyTreeModelListener());
             tree = new JTree(treeModel);
             tree.addTreeSelectionListener(this);
             tree.addMouseListener(new PopupListener());
@@ -453,21 +455,6 @@ public class ConfigViewerPanel extends JPanel {
 
         public void removeObject(DefaultMutableTreeNode node) {
             treeModel.removeNodeFromParent(node);
-        }
-
-        class MyTreeModelListener implements TreeModelListener {
-
-            public void treeNodesChanged(TreeModelEvent e) {
-            }
-
-            public void treeNodesInserted(TreeModelEvent e) {
-            }
-
-            public void treeNodesRemoved(TreeModelEvent e) {
-            }
-
-            public void treeStructureChanged(TreeModelEvent e) {
-            }
         }
 
         class PopupListener extends MouseAdapter {

@@ -43,14 +43,14 @@ import javax.swing.ToolTipManager;
 
 import com.cougaarsoftware.config.Component;
 import com.cougaarsoftware.config.Society;
-import com.cougaarsoftware.config.gui.ConfigViewerApplicationPlugin;
+import com.cougaarsoftware.config.gui.ConfigViewerController;
 import com.cougaarsoftware.config.gui.ConfigViewerGraphPanel;
 import com.touchgraph.graphlayout.Node;
 
 /**
- * the main gui for viewing cougaar societies from within cougaar
+ * Prefuse graph panel for viewing Cougaar societies
  * 
- * @author mabrams
+ * @author mhelmstetter
  */
 public class PrefuseConfigViewerGraphPanel extends ConfigViewerGraphPanel {
 	
@@ -70,7 +70,7 @@ public class PrefuseConfigViewerGraphPanel extends ConfigViewerGraphPanel {
 	 * @param controller
 	 *          DOCUMENT ME!
 	 */
-	public PrefuseConfigViewerGraphPanel(ConfigViewerApplicationPlugin controller) {
+	public PrefuseConfigViewerGraphPanel(ConfigViewerController controller) {
 		super(controller);
 	}
 

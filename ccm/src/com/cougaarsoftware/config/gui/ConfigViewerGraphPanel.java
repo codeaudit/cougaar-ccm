@@ -37,7 +37,7 @@ import com.touchgraph.graphlayout.Node;
  * @author mabrams
  */
 public abstract class ConfigViewerGraphPanel extends JPanel {
-	protected ConfigViewerApplicationPlugin controller;
+	protected ConfigViewerController controller;
 		
 
 	/**
@@ -46,7 +46,7 @@ public abstract class ConfigViewerGraphPanel extends JPanel {
 	 * @param controller
 	 *          DOCUMENT ME!
 	 */
-	public ConfigViewerGraphPanel(ConfigViewerApplicationPlugin controller) {
+	public ConfigViewerGraphPanel(ConfigViewerController controller) {
 		super();
 		this.controller = controller;
 		initGUI();
@@ -109,7 +109,7 @@ public abstract class ConfigViewerGraphPanel extends JPanel {
      */
     public abstract void displayGraph(Component component);
     
-    public ConfigViewerApplicationPlugin getController() {
+    public ConfigViewerController getController() {
         return controller;
     }
 }
