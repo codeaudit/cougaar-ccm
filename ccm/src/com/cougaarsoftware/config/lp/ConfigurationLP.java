@@ -83,7 +83,7 @@ public class ConfigurationLP
 		if (directive instanceof ConfigurationDirective) {
 			ConfigurationDirective configurationDirective = (ConfigurationDirective) directive;
 			if (logging.isDebugEnabled()) {
-				logging.debug("Received a configurationDirective");
+				logging.debug(self + ": Received a configurationDirective");
 			}
 			// make sure it isn't already there? Otherwise...
 			Object o = configurationDirective.getPayload();
