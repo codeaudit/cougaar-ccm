@@ -280,28 +280,30 @@ public class AgentConfigurationPlugin extends ParameterizedPlugin {
             logging.debug(agentId.getAddress() + ": Executing");
         }
         //handle tasks to update and send agent configuration
-        Enumeration e = agentUpdateSubscription.getAddedList();
-        while (e.hasMoreElements()) {
-            Task t = (Task) e.nextElement();
-            composeAgentConfiguration();
-            getBlackboardService().publishRemove(t);
-        }
-        e = null;
-        e = addCommandSubscription.getAddedList();
-        while (e.hasMoreElements()) {
-            Capability c = (Capability) e.nextElement();
-            if (commands == null) {
-                commands = Collections.synchronizedMap(new HashMap());
+        if (agentUpdateSubscription != null) {
+            Enumeration e = agentUpdateSubscription.getAddedList();
+            while (e.hasMoreElements()) {
+                Task t = (Task) e.nextElement();
+                composeAgentConfiguration();
+                getBlackboardService().publishRemove(t);
             }
-            Vector commandList = (Vector) commands.get(c.getDisplayName());
-            if (commandList == null) {
-                commandList = new Vector();
-                commandList.add(c);
-                commands.put(c.getComponentClass(), commandList);
-            } else {
-                commandList.add(c);
+            e = null;
+            e = addCommandSubscription.getAddedList();
+            while (e.hasMoreElements()) {
+                Capability c = (Capability) e.nextElement();
+                if (commands == null) {
+                    commands = Collections.synchronizedMap(new HashMap());
+                }
+                Vector commandList = (Vector) commands.get(c.getDisplayName());
+                if (commandList == null) {
+                    commandList = new Vector();
+                    commandList.add(c);
+                    commands.put(c.getComponentClass(), commandList);
+                } else {
+                    commandList.add(c);
+                }
+                getBlackboardService().publishRemove(c);
             }
-            getBlackboardService().publishRemove(c);
         }
     }
 
