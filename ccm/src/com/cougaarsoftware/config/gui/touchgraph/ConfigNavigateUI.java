@@ -52,283 +52,319 @@ import com.touchgraph.graphlayout.interaction.TGUserInterface;
  * @author mabrams
  */
 public class ConfigNavigateUI extends TGUserInterface {
-	private TGConfigViewerGraphPanel gui;
-	private ConfigTGPanel cvp;
-	private ConfigMouseListener ml;
-	private TGAbstractDragUI hvDragUI;
-	private DragNodeUI dragNodeUI;
-	JPopupMenu nodeNodePopup;
-	JPopupMenu nodePopup;
-	JPopupMenu nodeAgentPopup;
-	JPopupMenu nodeComponentPopup;
-	JPopupMenu edgePopup;
-	ConfigNode popupNode;
-	Edge popupEdge;
 
-	public ConfigNavigateUI(TGConfigViewerGraphPanel gui) {
-		this.gui = gui;
-		cvp = gui.getTGConfigurationViewPanel();
-		hvDragUI = gui.hvScroll.getHVDragUI();
-		dragNodeUI = new DragNodeUI(cvp);
-		ml = new ConfigMouseListener();
-		setUpNodePopup();
-		setUpNodeNodePopup();
-		setUpNodeAgentPopup();
-		setUpNodeComponentPopup();
-		setUpEdgePopup();
-	}
-	class ConfigMouseListener extends MouseAdapter {
-		public void mousePressed(MouseEvent e) {
-			if (e.isPopupTrigger()) {
-				triggerPopup(e);
-			} else {
-				Node mouseOverN = cvp.getMouseOverN();
-				if (e.getModifiers() == MouseEvent.BUTTON1_MASK) {
-					if (mouseOverN == null)
-						hvDragUI.activate(e);
-					else
-						dragNodeUI.activate(e);
-				}
-			}
-		}
+    private TGConfigViewerGraphPanel gui;
 
-		public void mouseClicked(MouseEvent e) {
-			Node mouseOverN = cvp.getMouseOverN();
-			if ((e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0) {
-				if (mouseOverN != null) {
-					if (e.getClickCount() == 1) {
-						cvp.setSelect(mouseOverN);
-					} else {
-						cvp.setSelect(mouseOverN);
-						gui.setLocale(mouseOverN);
-					}
-				}
-			}
-		}
+    private ConfigTGPanel cvp;
 
-		public void mouseReleased(MouseEvent e) {
-			if (e.isPopupTrigger()) {
-				triggerPopup(e);
-			}
-		}
+    private ConfigMouseListener ml;
 
-		public void triggerPopup(MouseEvent e) {
-			popupNode = (ConfigNode) cvp.getMouseOverN();
-			popupEdge = cvp.getMouseOverE();
-			if (popupNode != null) {
-				cvp.setMaintainMouseOver(true);
-				if (popupNode.getComponentType() == ConfigNode.NODE_TYPE) {
-					nodeNodePopup.show(e.getComponent(), e.getX(), e.getY());
-				} else if (popupNode.getComponentType() == ConfigNode.AGENT_TYPE) {
-					if (popupNode.getCommandMap() != null) {
-						getNodeAgentPopup(popupNode, popupNode.getCommandMap());
-					}
-					nodeAgentPopup.show(e.getComponent(), e.getX(), e.getY());
-				} else if (popupNode.getComponentType() == ConfigNode.COMPONENT_TYPE) {
-					nodeComponentPopup.show(e.getComponent(), e.getX(), e.getY());
-				} else {
-					nodePopup.show(e.getComponent(), e.getX(), e.getY());
-				}
-			} else if (popupEdge != null) {
-				cvp.setMaintainMouseOver(true);
-				edgePopup.show(e.getComponent(), e.getX(), e.getY());
-			} else {
-				gui.popupMenu.show(e.getComponent(), e.getX(), e.getY());
-			}
-		}
-	}
+    private TGAbstractDragUI hvDragUI;
 
-	/**
-	 * @param vector
-	 */
-	private void getNodeAgentPopup(ConfigNode node, Map commandMap) {
-		nodeAgentPopup = getNodePopup();
-		JMenuItem menuItem;
-		menuItem = new JMenuItem("Add Component");
-		nodeAgentPopup.add(menuItem);
-		menuItem = new JMenuItem("Remove Agent");
-		ActionListener removeAgentAction = new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (popupNode != null) {
-					ConfigNode node = null;
-					Iterator i = popupNode.getEdges();
-					while (i.hasNext()) {
-						Edge edge = (Edge) i.next();
-						node = (ConfigNode) edge.getFrom();
-						if (node.getComponentType() == ConfigNode.NODE_TYPE) {
-							break;
-						}
-					}
-					gui.showRemoveAgentDialog(popupNode.getLabel(), node.getLabel());
-				}
-			}
-		};
-		menuItem.addActionListener(removeAgentAction);
-		nodeAgentPopup.add(menuItem);
-		nodeAgentPopup.addSeparator();
-		Set keys = commandMap.keySet();
-		Iterator i = keys.iterator();		
-		while (i.hasNext()) {
-			String component = (String)i.next();
-			Vector commandList = (Vector)commandMap.get(component);
-			Iterator j = commandList.iterator();
-			String subMenuStr = component.substring(component.lastIndexOf('.')+1);
-			JMenu subMenu = new JMenu(subMenuStr);
-			nodeAgentPopup.add(subMenu);
-			while (j.hasNext()) {
-				final Capability command = (Capability) j.next();
-				String displayName = command.getDisplayName();				
-				menuItem = new JMenuItem(displayName);
-				menuItem.addActionListener(new CommandActionListener(command, node));
-				subMenu.add(menuItem);				
-			}
-		
-		}
-	}
-	class CommandActionListener implements ActionListener {
-		private Capability command;
-		private ConfigNode node;
+    private DragNodeUI dragNodeUI;
 
-		public CommandActionListener(Capability command, ConfigNode node) {
-			this.command = command;
-			this.node = node;
-		}
+    JPopupMenu nodeNodePopup;
 
-		public void actionPerformed(ActionEvent e) {
-			if (popupNode != null) {
-				gui.getController().executeCommand(command, node.getAgentAddress());
-			}
-		}
-	};
+    JPopupMenu nodePopup;
 
-	/**
-	 * @see com.touchgraph.graphlayout.interaction.TGUserInterface#activate()
-	 */
-	public void activate() {
-		cvp.addMouseListener(ml);
-	}
+    JPopupMenu nodeAgentPopup;
 
-	public void deactivate() {
-		cvp.removeMouseListener(ml);
-	}
+    JPopupMenu nodeComponentPopup;
 
-	private void setUpNodeNodePopup() {
-		nodeNodePopup = getNodePopup();
-		JMenuItem menuItem;
-		menuItem = new JMenuItem("Add Agent");
-		nodeNodePopup.add(menuItem);
-		menuItem = new JMenuItem("Remove All Child Agents");
-		nodeNodePopup.add(menuItem);
-	}
+    JPopupMenu edgePopup;
 
-	private void setUpNodeAgentPopup() {
-		nodeAgentPopup = getNodePopup();
-		JMenuItem menuItem;
-		menuItem = new JMenuItem("Add Component");
-		nodeAgentPopup.add(menuItem);
-		menuItem = new JMenuItem("Remove Agent");
-		ActionListener removeAgentAction = new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (popupNode != null) {
-					ConfigNode node = null;
-					Iterator i = popupNode.getEdges();
-					while (i.hasNext()) {
-						Edge edge = (Edge) i.next();
-						node = (ConfigNode) edge.getFrom();
-						if (node.getComponentType() == ConfigNode.NODE_TYPE) {
-							break;
-						}
-					}
-					gui.showRemoveAgentDialog(popupNode.getLabel(), node.getLabel());
-				}
-			}
-		};
-		menuItem.addActionListener(removeAgentAction);
-		nodeAgentPopup.add(menuItem);
-	}
+    ConfigNode popupNode;
 
-	private void setUpNodeComponentPopup() {
-	}
+    Edge popupEdge;
 
-	private void setUpNodePopup() {
-		nodePopup = getNodePopup();
-	}
+    public ConfigNavigateUI(TGConfigViewerGraphPanel gui) {
+        this.gui = gui;
+        cvp = gui.getTGConfigurationViewPanel();
+        hvDragUI = gui.hvScroll.getHVDragUI();
+        dragNodeUI = new DragNodeUI(cvp);
+        ml = new ConfigMouseListener();
+        setUpNodePopup();
+        setUpNodeNodePopup();
+        setUpNodeAgentPopup();
+        setUpNodeComponentPopup();
+        setUpEdgePopup();
+    }
 
-	private JPopupMenu getNodePopup() {
-		JPopupMenu nodePopup = new JPopupMenu();
-		JMenuItem menuItem;
-		menuItem = new JMenuItem("Expand Node");
-		ActionListener expandAction = new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (popupNode != null) {
-					cvp.expandNode(popupNode);
-				}
-			}
-		};
-		menuItem.addActionListener(expandAction);
-		nodePopup.add(menuItem);
-		menuItem = new JMenuItem("Collapse Node");
-		ActionListener collapseAction = new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (popupNode != null) {
-					cvp.collapseNode(popupNode);
-				}
-			}
-		};
-		menuItem.addActionListener(collapseAction);
-		nodePopup.add(menuItem);
-		menuItem = new JMenuItem("Hide Node");
-		ActionListener hideAction = new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (popupNode != null) {
-					cvp.hideNode(popupNode);
-				}
-			}
-		};
-		menuItem.addActionListener(hideAction);
-		nodePopup.add(menuItem);
-		nodePopup.addPopupMenuListener(new PopupMenuListener() {
-			public void popupMenuCanceled(PopupMenuEvent e) {
-			}
+    class ConfigMouseListener extends MouseAdapter {
 
-			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-				cvp.setMaintainMouseOver(false);
-				cvp.setMouseOverN(null);
-				cvp.repaint();
-			}
+        public void mousePressed(MouseEvent e) {           
+            if (e.isPopupTrigger()) {
+                triggerPopup(e);
+            } else {
+                Node mouseOverN = cvp.getMouseOverN();
+                if (e.getModifiers() == MouseEvent.BUTTON1_MASK) {
+                    if (mouseOverN == null)
+                        hvDragUI.activate(e);
+                    else
+                        dragNodeUI.activate(e);
+                }
+            }
+        }
 
-			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-			}
-		});
-		return nodePopup;
-	}
+        public void mouseClicked(MouseEvent e) {                        
+            Node mouseOverN = cvp.getMouseOverN();                                   
+            if ((e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0) {
+                if (mouseOverN != null) {
+                    if (e.getClickCount() == 1) {
+                        cvp.setSelect(mouseOverN);
+                    } else {
+                        cvp.setSelect(mouseOverN);
+                        gui.setLocale(mouseOverN);
+                    }
+                }
+            }
+        }
 
-	private void setUpEdgePopup() {
-		edgePopup = new JPopupMenu();
-		JMenuItem menuItem;
-		menuItem = new JMenuItem("Hide Edge");
-		ActionListener hideAction = new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (popupEdge != null) {
-					cvp.hideEdge(popupEdge);
-				}
-			}
-		};
-		menuItem.addActionListener(hideAction);
-		edgePopup.add(menuItem);
-		edgePopup.addPopupMenuListener(new PopupMenuListener() {
-			public void popupMenuCanceled(PopupMenuEvent e) {
-			}
+        public void mouseReleased(MouseEvent e) {                       
+            if (e.isPopupTrigger()) {
+                triggerPopup(e);
+            }
+        }
 
-			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-				cvp.setMaintainMouseOver(false);
-				cvp.setMouseOverE(null);
-				cvp.repaint();
-				//                wikiNodeHintUI.activate();
-			}
+        public void triggerPopup(MouseEvent e) {                        
+            popupNode = (ConfigNode) cvp.getMouseOverN();
+            popupEdge = cvp.getMouseOverE();
+            if (popupNode != null) {
+                //cvp.setMaintainMouseOver(true);
+                JPopupMenu popupMenu = popupNode.getPopupMenu();
+                if (popupMenu != null) {
+                    popupMenu.show(e.getComponent(), e.getX(), e.getY());
+                } else if (popupNode.getComponentType() == ConfigNode.NODE_TYPE) {
+                    nodeNodePopup.show(e.getComponent(), e.getX(), e.getY());
+                } else if (popupNode.getComponentType() == ConfigNode.AGENT_TYPE) {
+                    if (popupNode.getCommandMap() != null) {
+                        getNodeAgentPopup(popupNode, popupNode.getCommandMap());
+                    }
+                    nodeAgentPopup.show(e.getComponent(), e.getX(), e.getY());
+                } else if (popupNode.getComponentType() == ConfigNode.COMPONENT_TYPE) {
+                    if (nodeComponentPopup != null) {
+                        nodeComponentPopup.show(e.getComponent(), e.getX(), e
+                                .getY());
+                    }
+                } else {
+                    nodePopup.show(e.getComponent(), e.getX(), e.getY());
+                }
+            } else if (popupEdge != null) {
+                //cvp.setMaintainMouseOver(true);
+                edgePopup.show(e.getComponent(), e.getX(), e.getY());
+            } else {
+                gui.popupMenu.show(e.getComponent(), e.getX(), e.getY());
+            }
+        }
+    }
 
-			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-			}
-		});
-	}
+    /**
+     * @param vector
+     */
+    private void getNodeAgentPopup(ConfigNode node, Map commandMap) {
+        nodeAgentPopup = getNodePopup();
+        JMenuItem menuItem;
+        menuItem = new JMenuItem("Add Component");
+        nodeAgentPopup.add(menuItem);
+        menuItem = new JMenuItem("Remove Agent");
+        ActionListener removeAgentAction = new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                if (popupNode != null) {
+                    ConfigNode node = null;
+                    Iterator i = popupNode.getEdges();
+                    while (i.hasNext()) {
+                        Edge edge = (Edge) i.next();
+                        node = (ConfigNode) edge.getFrom();
+                        if (node.getComponentType() == ConfigNode.NODE_TYPE) {
+                            break;
+                        }
+                    }
+                    gui.showRemoveAgentDialog(popupNode.getLabel(), node
+                            .getLabel());
+                }
+            }
+        };
+        menuItem.addActionListener(removeAgentAction);
+        nodeAgentPopup.add(menuItem);
+        nodeAgentPopup.addSeparator();
+        Set keys = commandMap.keySet();
+        Iterator i = keys.iterator();
+        while (i.hasNext()) {
+            String component = (String) i.next();
+            Vector commandList = (Vector) commandMap.get(component);
+            Iterator j = commandList.iterator();
+            String subMenuStr = component
+                    .substring(component.lastIndexOf('.') + 1);
+            JMenu subMenu = new JMenu(subMenuStr);
+            nodeAgentPopup.add(subMenu);
+            while (j.hasNext()) {
+                final Capability command = (Capability) j.next();
+                String displayName = command.getDisplayName();
+                menuItem = new JMenuItem(displayName);
+                menuItem.addActionListener(new CommandActionListener(command,
+                        node));
+                subMenu.add(menuItem);
+            }
+
+        }
+    }
+
+    class CommandActionListener implements ActionListener {
+
+        private Capability command;
+
+        private ConfigNode node;
+
+        public CommandActionListener(Capability command, ConfigNode node) {
+            this.command = command;
+            this.node = node;
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            if (popupNode != null) {
+                gui.getController().executeCommand(command,
+                        node.getAgentAddress());
+            }
+        }
+    };
+
+    /**
+     * @see com.touchgraph.graphlayout.interaction.TGUserInterface#activate()
+     */
+    public void activate() {
+        cvp.addMouseListener(ml);
+    }
+
+    public void deactivate() {
+        cvp.removeMouseListener(ml);
+    }
+
+    private void setUpNodeNodePopup() {
+        nodeNodePopup = getNodePopup();
+        JMenuItem menuItem;
+        menuItem = new JMenuItem("Add Agent");
+        nodeNodePopup.add(menuItem);
+        menuItem = new JMenuItem("Remove All Child Agents");
+        nodeNodePopup.add(menuItem);
+    }
+
+    private void setUpNodeAgentPopup() {
+        nodeAgentPopup = getNodePopup();
+        JMenuItem menuItem;
+        menuItem = new JMenuItem("Add Component");
+        nodeAgentPopup.add(menuItem);
+        menuItem = new JMenuItem("Remove Agent");
+        ActionListener removeAgentAction = new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                if (popupNode != null) {
+                    ConfigNode node = null;
+                    Iterator i = popupNode.getEdges();
+                    while (i.hasNext()) {
+                        Edge edge = (Edge) i.next();
+                        node = (ConfigNode) edge.getFrom();
+                        if (node.getComponentType() == ConfigNode.NODE_TYPE) {
+                            break;
+                        }
+                    }
+                    gui.showRemoveAgentDialog(popupNode.getLabel(), node
+                            .getLabel());
+                }
+            }
+        };
+        menuItem.addActionListener(removeAgentAction);
+        nodeAgentPopup.add(menuItem);
+    }
+
+    private void setUpNodeComponentPopup() {
+    }
+
+    private void setUpNodePopup() {
+        nodePopup = getNodePopup();
+    }
+
+    private JPopupMenu getNodePopup() {
+        JPopupMenu nodePopup = new JPopupMenu();
+        JMenuItem menuItem;
+        menuItem = new JMenuItem("Expand Node");
+        ActionListener expandAction = new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                if (popupNode != null) {
+                    cvp.expandNode(popupNode);
+                }
+            }
+        };
+        menuItem.addActionListener(expandAction);
+        nodePopup.add(menuItem);
+        menuItem = new JMenuItem("Collapse Node");
+        ActionListener collapseAction = new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                if (popupNode != null) {
+                    cvp.collapseNode(popupNode);
+                }
+            }
+        };
+        menuItem.addActionListener(collapseAction);
+        nodePopup.add(menuItem);
+        menuItem = new JMenuItem("Hide Node");
+        ActionListener hideAction = new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                if (popupNode != null) {
+                    cvp.hideNode(popupNode);
+                }
+            }
+        };
+        menuItem.addActionListener(hideAction);
+        nodePopup.add(menuItem);
+        nodePopup.addPopupMenuListener(new PopupMenuListener() {
+
+            public void popupMenuCanceled(PopupMenuEvent e) {
+            }
+
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+                cvp.setMaintainMouseOver(false);
+                cvp.setMouseOverN(null);
+                cvp.repaint();
+            }
+
+            public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+            }
+        });
+        return nodePopup;
+    }
+
+    private void setUpEdgePopup() {
+        edgePopup = new JPopupMenu();
+        JMenuItem menuItem;
+        menuItem = new JMenuItem("Hide Edge");
+        ActionListener hideAction = new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                if (popupEdge != null) {
+                    cvp.hideEdge(popupEdge);
+                }
+            }
+        };
+        menuItem.addActionListener(hideAction);
+        edgePopup.add(menuItem);
+        edgePopup.addPopupMenuListener(new PopupMenuListener() {
+
+            public void popupMenuCanceled(PopupMenuEvent e) {
+            }
+
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+                cvp.setMaintainMouseOver(false);
+                cvp.setMouseOverE(null);
+                cvp.repaint();
+                //                wikiNodeHintUI.activate();
+            }
+
+            public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+            }
+        });
+    }
 }

@@ -29,6 +29,8 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.util.Map;
 
+import javax.swing.JPopupMenu;
+
 import org.cougaar.core.mts.MessageAddress;
 
 import com.touchgraph.graphlayout.TGPanel;
@@ -56,7 +58,7 @@ public class ConfigNode extends com.touchgraph.graphlayout.Node {
      public static Color BORDER_MOUSE_OVER_COLOR = new Color(160,160,160);
      
      public static Color BORDER_UNSELECTED_COLOR   = Color.GRAY;
-     public static Color BORDER_SELECTED_COLOR   = Color.GRAY;
+     public static Color BORDER_SELECTED_COLOR   = Color.RED;
 
      public static Color TEXT_COLOR              = Color.BLACK;
      
@@ -78,6 +80,7 @@ public class ConfigNode extends com.touchgraph.graphlayout.Node {
 	private int componentType;
 	private Map commandMap;
 	private MessageAddress agentAddress;
+	private JPopupMenu popupMenu;
 
 	public ConfigNode(String name, String label, int type) {
 		this(name, label, type, null);
@@ -270,4 +273,15 @@ public class ConfigNode extends com.touchgraph.graphlayout.Node {
 	public void setAgentAddress(MessageAddress agentAddress) {
 		this.agentAddress = agentAddress;
 	}
+	
+    /**
+     * @return
+     */
+    public JPopupMenu getPopupMenu() {
+        return popupMenu;
+    }
+    
+    public void setPopupMenu(JPopupMenu popupMenu) {
+        this.popupMenu = popupMenu;
+    }
 }

@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
@@ -70,6 +69,7 @@ import com.cougaarsoftware.config.Capability;
 import com.cougaarsoftware.config.Component;
 import com.cougaarsoftware.config.NodeComponent;
 import com.cougaarsoftware.config.Society;
+import com.cougaarsoftware.config.gui.prefuse.PrefuseConfigViewerGraphPanel;
 
 /**
  * Main panel for the configuration gui
@@ -83,7 +83,7 @@ public class ConfigViewerPanel extends JPanel {
     /**
      * cougaar plugin that controls this GUI
      */
-    private ConfigViewerController controller;
+    protected ConfigViewerController controller;
 
     /**
      * the scroll pane containing the tree view of the society
@@ -99,6 +99,8 @@ public class ConfigViewerPanel extends JPanel {
      * the pane with the graph view of the society
      */
     private ConfigViewerGraphPanel graphPanel;
+
+    private boolean showComponents = true;
 
     /**
      * logging
@@ -132,10 +134,32 @@ public class ConfigViewerPanel extends JPanel {
         JMenuItem menuItem;
         //create the menu
         menuBar = new JMenuBar();
+
         menu = new JMenu("File");
         menu.setMnemonic(KeyEvent.VK_F);
         menuBar.add(menu);
-        menu.addSeparator();
+        if (graphPanel instanceof PrefuseConfigViewerGraphPanel) {
+            menuItem = new JMenuItem("Save Graph", KeyEvent.VK_S);
+            menuItem.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+                    ((PrefuseConfigViewerGraphPanel) graphPanel)
+                            .saveGraph(getParent());
+                }
+            });
+            menu.add(menuItem);
+
+            menuItem = new JMenuItem("Load Graph", KeyEvent.VK_S);
+            menuItem.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+                    ((PrefuseConfigViewerGraphPanel) graphPanel)
+                            .loadGraph(getParent());
+                }
+            });
+            menu.add(menuItem);
+        }
+
         menuItem = new JMenuItem("Exit", KeyEvent.VK_X);
         menuItem.addActionListener(new ActionListener() {
 
@@ -147,6 +171,7 @@ public class ConfigViewerPanel extends JPanel {
             }
         });
         menu.add(menuItem);
+
         menu = new JMenu("Tools");
         menu.setMnemonic(KeyEvent.VK_T);
         menuBar.add(menu);
@@ -226,9 +251,11 @@ public class ConfigViewerPanel extends JPanel {
     public void updateNodeData(NodeComponent nodeComponent) {
         treeScrollPane.updateNodeComponent(nodeComponent);
     }
-    
-    public void addComponent(ComponentDescription cd) {
-        
+
+    public void addObject(AgentComponent agentComponent, Object object,
+            JPopupMenu popupMenu) {
+        treeScrollPane.addObject(agentComponent, object);
+        graphPanel.addAgentComponent(agentComponent, object, popupMenu);
     }
 
     /**
@@ -356,6 +383,51 @@ public class ConfigViewerPanel extends JPanel {
             }
         }
 
+        //        public void addObject(AgentComponent agentComponent, Object object) {
+        //            int childCount = rootNode.getChildCount();
+        //            for (int i = 0; i < childCount; i++) {
+        //                DefaultMutableTreeNode cNode = (DefaultMutableTreeNode) rootNode
+        //                        .getChildAt(i);
+        //                Component node = (Component) cNode.getUserObject();
+        //                if (node.getName().equals(agentComponent.getParentNode())) {
+        //                    addObject(cNode, object);
+        //                }
+        //            }
+        //        }
+
+        //public void addSensorComponent(SensorRegistration sr) {
+        public void addObject(AgentComponent agentComponent, Object object) {
+            int childCount = rootNode.getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                DefaultMutableTreeNode cNode = (DefaultMutableTreeNode) rootNode
+                        .getChildAt(i);
+                int nodeChildCount = cNode.getChildCount();
+                for (int j = 0; j < nodeChildCount; j++) {
+                    DefaultMutableTreeNode cAgent = (DefaultMutableTreeNode) cNode
+                            .getChildAt(j);
+                    Component agent = (Component) cAgent.getUserObject();
+
+                    if (agent.getName().equals(agentComponent.getName())) {
+                        this.addObject(cAgent, object);
+                        i = childCount;
+                        j = nodeChildCount;
+                    }
+                }
+            }
+            //            if (sensorComponents == null) {
+            //                sensorComponents = new HashMap();
+            //            }
+            //            Hashtable sensorList =
+            // (Hashtable)sensorComponents.get(sr.getAgentIdentifier());
+            //            if (sensorList == null) {
+            //                sensorList = new Hashtable();
+            //            }
+            //            sensorList.put(sr.getSensorId(), sr);
+            //            sensorComponents.put(MessageAddress.getMessageAddress(sr.getAgentIdentifier()).getAddress(),
+            // sensorList);
+            //            graphPanel.cvp.setSensorComponents(sensorComponents);
+        }
+
         /**
          * @param agentComponent
          */
@@ -379,7 +451,7 @@ public class ConfigViewerPanel extends JPanel {
         }
 
         protected void populateTree(Society society) {
-            rootNode.setUserObject(society);
+            //rootNode.setUserObject(society);
             Collection nodes = society.getNodeComponents();
             if (nodes != null) {
                 Iterator i = nodes.iterator();
@@ -392,12 +464,15 @@ public class ConfigViewerPanel extends JPanel {
         private void addAgent(DefaultMutableTreeNode parent,
                 AgentComponent agent) {
             DefaultMutableTreeNode aNode = this.addObject(parent, agent);
-            List components = agent.getChildComponents();
-            if (components != null) {
-                Iterator k = components.iterator();
-                while (k.hasNext()) {
-                    ComponentDescription cd = (ComponentDescription) k.next();
-                    addObject(aNode, cd.getName());
+            if (showComponents) {
+                Collection components = agent.getChildComponents();
+                if (components != null) {
+                    Iterator k = components.iterator();
+                    while (k.hasNext()) {
+                        ComponentDescription cd = (ComponentDescription) k
+                                .next();
+                        addObject(aNode, cd.getClassname());
+                    }
                 }
             }
         }
@@ -592,5 +667,14 @@ public class ConfigViewerPanel extends JPanel {
             }
             return ret;
         }
+    }
+
+    public boolean isShowComponents() {
+        return showComponents;
+    }
+
+    public void setShowComponents(boolean showComponents) {
+        this.showComponents = showComponents;
+        graphPanel.setShowComponents(showComponents);
     }
 }

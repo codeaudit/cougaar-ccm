@@ -29,13 +29,12 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Stack;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -43,6 +42,10 @@ import javax.swing.JScrollBar;
 import javax.swing.JTextPane;
 import javax.swing.ToolTipManager;
 
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
+
+import com.cougaarsoftware.config.AgentComponent;
 import com.cougaarsoftware.config.Component;
 import com.cougaarsoftware.config.Society;
 import com.cougaarsoftware.config.gui.ConfigViewerController;
@@ -63,12 +66,12 @@ import com.touchgraph.graphlayout.interaction.ZoomScroll;
  * @author mabrams
  */
 public class TGConfigViewerGraphPanel extends ConfigViewerGraphPanel {
+
 	protected ConfigTGPanel cvp;
 	protected GraphEltSet completeEltSet;
 	protected TGLensSet tgLensSet;
 	protected ZoomScroll zoomScroll;
 	protected HVScroll hvScroll;
-	protected Stack browseHistory = new Stack();
 	protected JComboBox localityRadiusCombo;
 	protected String selectedComponentName;
 	protected JTextPane textPane;
@@ -77,6 +80,12 @@ public class TGConfigViewerGraphPanel extends ConfigViewerGraphPanel {
 	public static int INITIAL_RADIUS = 3;
 	public static boolean INITIAL_SHOW_BACKLINKS = false;
 	private TGUIManager tgUIManager;
+	private ConfigNavigateUI navigateUI;
+	
+    protected static Logger logger;
+    static {
+        logger = LoggerFactory.getInstance().createLogger(TGConfigViewerGraphPanel.class);
+    }	
 	
 	/**
 	 * Creates a new ConfigViewerGUI object.
@@ -112,7 +121,7 @@ public class TGConfigViewerGraphPanel extends ConfigViewerGraphPanel {
 
 	private void addUIs() {
 		tgUIManager = new TGUIManager();
-		ConfigNavigateUI navigateUI = new ConfigNavigateUI(this);
+		navigateUI = new ConfigNavigateUI(this);
 		tgUIManager.addUI(navigateUI, "Configuration");
 		tgUIManager.activate("Configuration");
 	}
@@ -176,11 +185,11 @@ public class TGConfigViewerGraphPanel extends ConfigViewerGraphPanel {
 		localityRadiusCombo.addActionListener(setLocaleAL);
 		localityRadiusCombo.setPreferredSize(new Dimension(50, 20));
 		c.gridx++;
-		topPanel.add(new Label("Radius", Label.RIGHT), c);
+		topPanel.add(new JLabel("Radius"), c);
 		c.gridx++;
 		topPanel.add(localityRadiusCombo, c);
 		c.gridx++;
-		topPanel.add(new Label("Zoom", Label.RIGHT), c);
+		topPanel.add(new JLabel("Zoom"), c);
 		c.gridx++;
 		c.weightx = 1;
 		c.insets = new Insets(0, 0, 0, 5);
@@ -253,6 +262,9 @@ public class TGConfigViewerGraphPanel extends ConfigViewerGraphPanel {
 	 * @param component
 	 */
 	public void setFocus(String nodeID) {
+	    if (logger.isDebugEnabled()) {
+	        logger.debug("setFocus(): " + nodeID);
+	    }
 		Node node = completeEltSet.findNode(nodeID);
 		if (node != null) {
 			setLocale(node);
@@ -267,4 +279,16 @@ public class TGConfigViewerGraphPanel extends ConfigViewerGraphPanel {
         cvp.processConfiguration(society);
 		cvp.repaint();
     }
+    
+    public void setShowComponents(boolean show) {
+        super.setShowComponents(show);
+        cvp.setShowComponents(show);
+    }
+
+    /* (non-Javadoc)
+     * @see com.cougaarsoftware.config.gui.ConfigViewerGraphPanel#addAgentComponent(com.cougaarsoftware.config.AgentComponent, java.lang.Object)
+     */
+    public void addAgentComponent(AgentComponent agentComponent, Object object, JPopupMenu popupMenu) {
+        cvp.addAgentComponent(agentComponent, object, popupMenu);
+    }    
 }

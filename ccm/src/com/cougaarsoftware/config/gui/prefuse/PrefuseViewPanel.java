@@ -24,9 +24,14 @@
  */
 package com.cougaarsoftware.config.gui.prefuse;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.GridLayout;
+import java.awt.Dimension;
 import java.awt.Paint;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -35,7 +40,10 @@ import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JToolBar;
 
 import org.cougaar.core.component.ComponentDescription;
 
@@ -50,32 +58,35 @@ import edu.berkeley.guir.prefuse.ItemRegistry;
 import edu.berkeley.guir.prefuse.NodeItem;
 import edu.berkeley.guir.prefuse.VisualItem;
 import edu.berkeley.guir.prefuse.action.RepaintAction;
+import edu.berkeley.guir.prefuse.action.animate.ColorAnimator;
+import edu.berkeley.guir.prefuse.action.animate.PolarLocationAnimator;
 import edu.berkeley.guir.prefuse.action.assignment.ColorFunction;
-import edu.berkeley.guir.prefuse.action.filter.TreeFilter;
+import edu.berkeley.guir.prefuse.action.filter.WindowedTreeFilter;
 import edu.berkeley.guir.prefuse.activity.ActionList;
+import edu.berkeley.guir.prefuse.activity.SlowInSlowOutPacer;
 import edu.berkeley.guir.prefuse.graph.DefaultEdge;
-import edu.berkeley.guir.prefuse.graph.DefaultGraph;
+import edu.berkeley.guir.prefuse.graph.DefaultTree;
 import edu.berkeley.guir.prefuse.graph.DefaultTreeNode;
 import edu.berkeley.guir.prefuse.graph.Edge;
 import edu.berkeley.guir.prefuse.graph.Graph;
+import edu.berkeley.guir.prefuse.graph.io.GraphWriter;
+import edu.berkeley.guir.prefuse.graph.io.XMLGraphReader;
+import edu.berkeley.guir.prefuse.graph.io.XMLGraphWriter;
 import edu.berkeley.guir.prefuse.render.DefaultEdgeRenderer;
 import edu.berkeley.guir.prefuse.render.DefaultRendererFactory;
 import edu.berkeley.guir.prefuse.render.Renderer;
 import edu.berkeley.guir.prefuse.render.TextImageItemRenderer;
 import edu.berkeley.guir.prefusex.controls.DragControl;
 import edu.berkeley.guir.prefusex.controls.FocusControl;
-import edu.berkeley.guir.prefusex.force.DragForce;
-import edu.berkeley.guir.prefusex.force.ForceSimulator;
-import edu.berkeley.guir.prefusex.force.NBodyForce;
-import edu.berkeley.guir.prefusex.force.SpringForce;
-import edu.berkeley.guir.prefusex.layout.ForceDirectedLayout;
-import edu.berkeley.guir.prefusex.layout.RadialTreeLayout;
+import edu.berkeley.guir.prefusex.controls.NeighborHighlightControl;
+import edu.berkeley.guir.prefusex.controls.PanControl;
+import edu.berkeley.guir.prefusex.controls.ZoomControl;
 
 /**
  * Prefuse graph panel for viewing Cougaar societies
  * 
  * @author mhelmstetter
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  *  
  */
 public class PrefuseViewPanel extends JPanel {
@@ -88,25 +99,24 @@ public class PrefuseViewPanel extends JPanel {
 
     private Society society;
 
-    private Map nodeMap;
+    private Map nodeMap = Collections.synchronizedMap(new HashMap());
 
-    private ActionList layout;
+    private ActionList filter, layout, update, animate;
 
-    private ActionList forces;
-
-    private ActionList filter;
+    private DefaultTreeNode rootNode;
+    
+    public static WindowedTreeFilter feye;
 
     public PrefuseViewPanel() {
         super();
-        graph = new DefaultGraph(Collections.EMPTY_LIST, false);
+        graph = new DefaultTree();
+        rootNode = new DefaultTreeNode();
+        rootNode.setAttribute("label", "root");
+        ((DefaultTree) graph).setRoot(rootNode);
 
         registry = new ItemRegistry(graph);
         registry.setGraph(graph);
         display = new Display();
-        //Controller controller = new Controller();
-        nodeMap = Collections.synchronizedMap(new HashMap());
-
-        //      initialize renderers
         Renderer nodeRenderer = new TextImageItemRenderer();
         Renderer edgeRenderer = new DefaultEdgeRenderer() {
 
@@ -122,50 +132,58 @@ public class PrefuseViewPanel extends JPanel {
         registry.setRendererFactory(new DefaultRendererFactory(nodeRenderer,
                 edgeRenderer, null));
 
-        // initialize display
-        display.setItemRegistry(registry);
-        display.setSize(600, 600);
-        display.setBackground(Color.WHITE);
-        display.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
-        display.addControlListener(new DragControl(true));
-        display.addControlListener(new FocusControl(0));
+        //      initialize action pipelines
+        filter = new ActionList(registry);
+        //filter.add(new TreeFilter());
+        filter.add((feye=new WindowedTreeFilter(-4)));
 
         layout = new ActionList(registry);
-        layout.add(new RadialTreeLayout());
-        layout.add(new DemoColorFunction());
         layout.add(new RepaintAction());
+        //layout.add(new FruchtermanReingoldLayout());
 
-        //      create a filter to map input data into visual items
-        filter = new ActionList(registry);
-        //filter.add(new GraphFilter());
-        filter.add(new TreeFilter());
+        update = new ActionList(registry);
+        update.add(new DemoColorFunction());
+        //update.add(new RepaintAction());
 
-        // create a force simulator using anti-gravity (n-body force),
-        //  a spring force on edges, and a drag (friction) force
-        ForceSimulator fsim = new ForceSimulator();
-        fsim.addForce(new NBodyForce(-0.4f, -1f, 0.9f));
-        fsim.addForce(new SpringForce(2E-5f, 75f));
-        fsim.addForce(new DragForce(-0.01f));
+        animate = new ActionList(registry, 1500, 20);
+        animate.setPacingFunction(new SlowInSlowOutPacer());
+        animate.add(new PolarLocationAnimator());
+        animate.add(new ColorAnimator());
+        animate.add(new RepaintAction());
 
-        // create a list of actions that
-        // (a) use the force simulator to continuously update the
-        //     position and speed of items,
-        // (b) set item colors, and
-        // (c) repaint the display.
-        //
-        // The -1 indicates that the list should continuously re-run
-        //  infinitely, while the 20 tells it to wait at least 20
-        //  milliseconds between runs.
-        forces = new ActionList(registry, -1, 10000);
-        forces.add(new ForceDirectedLayout(fsim, false, false));
-        //forces.add(new DemoColorFunction());
-        forces.add(new RepaintAction());
+        // initialize display
+        display.setItemRegistry(registry);
+        display.setBackground(Color.WHITE);
+        display.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
+        display.addControlListener(new FocusControl());
+        display.addControlListener(new DragControl());
+        display.addControlListener(new PanControl());
+        display.addControlListener(new ZoomControl());
+        display.addControlListener(new NeighborHighlightControl(update));
+        
+        //this.setLayout(new GridLayout());
+        //this.add(display);
+        JToolBar toolbar = new JToolBar();
+        toolbar.add(new PrefuseGraphLayoutSelector(layout));
+        JButton layoutButton = new JButton("Layout");
+        layoutButton.addActionListener(new ActionListener() {
 
-        this.setLayout(new GridLayout());
-        this.add(display);
+            public void actionPerformed(ActionEvent e) {
+                update();
+            }
+        });
+        toolbar.add(layoutButton);
+        this.setLayout(new BorderLayout());
+        this.add(toolbar, BorderLayout.NORTH);
+        this.add(display, BorderLayout.CENTER);
+        
+        Dimension pref = getPreferredSize();
+        display.setSize(new Dimension(pref.width-60, pref.height-toolbar.getPreferredSize().height));
 
-        // filter the input graph into visualized content
+        // run filter, layout, and perform initial animation
         filter.runNow();
+        layout.runNow();
+        animate.runNow();
     }
 
     /**
@@ -205,7 +223,7 @@ public class PrefuseViewPanel extends JPanel {
         if (nodeNode == null && status == Component.HEALTHY
                 || status == Component.UNKNOWN) {
             //nodeNode = addNodeNode(nodeNode, societyNode, nodeName);
-            nodeNode = createNode(nodeName, nodeName, null);
+            nodeNode = createNode(nodeName, null);
         } else if (nodeNode != null && status == Component.DEAD) {
             //gui.completeEltSet.deleteNode(nodeNode);
         }
@@ -248,13 +266,13 @@ public class PrefuseViewPanel extends JPanel {
         int status = ac.getStatus();
         if (agentNode == null && status == Component.HEALTHY
                 || status == Component.UNKNOWN) {
-            agentNode = createNode(node.getName() + "." + agentName, agentName,
+            agentNode = createNode(agentName,
                     nodeNode);
         } else if (agentNode != null && status == Component.DEAD) {
             //gui.completeEltSet.deleteNode(agentNode);
         }
         if (status == Component.HEALTHY || status == Component.UNKNOWN) {
-            Vector childComponents = ac.getChildComponents();
+            Collection childComponents = ac.getChildComponents();
             if (childComponents != null) {
                 Iterator agentCompIter = ac.getChildComponents().iterator();
                 while (agentCompIter.hasNext()) {
@@ -285,18 +303,53 @@ public class PrefuseViewPanel extends JPanel {
      * @param parent
      * @return The new node
      */
-    private DefaultTreeNode createNode(String key, String name,
-            DefaultTreeNode parent) {
-        DefaultTreeNode node = new DefaultTreeNode();
-        node.setAttribute("label", name);
+//    private DefaultTreeNode createNode(String key, String name,
+//            DefaultTreeNode parent) {
+//        DefaultTreeNode node = new DefaultTreeNode();
+//        node.setAttribute("label", name);
+//        node.setAttribute("color", "#FFFFCC");
+//        graph.addNode(node);
+//        nodeMap.put(key, node);
+//        if (parent != null) {
+//            DefaultEdge edge = new DefaultEdge(parent, node);
+//            graph.addEdge(edge);
+//        }
+//        return node;
+//    }
+    
+    /**
+     * Create a new node, add it to the graph and to the node map
+     * 
+     * @param key
+     * @param name
+     * @param parent
+     * @return The new node
+     */
+    private DefaultTreeNode createNode(Object key, Object name,
+            final DefaultTreeNode parent) {
+        if (key == null) {
+            key = name;
+        }
+        final DefaultTreeNode node = new DefaultTreeNode();
+        node.setAttribute("label", name.toString());
         node.setAttribute("color", "#FFFFCC");
-        graph.addNode(node);
         nodeMap.put(key, node);
         if (parent != null) {
             DefaultEdge edge = new DefaultEdge(parent, node);
-            graph.addEdge(edge);
+            edge.setAttribute("weight", "1");
+            parent.addChild(edge);
+        } else {
+            DefaultEdge edge = new DefaultEdge(rootNode, node);
+            rootNode.addChild(edge);
         }
+
+        update();
+
         return node;
+    }
+    
+    private DefaultTreeNode createNode(Object name, DefaultTreeNode parent) {
+        return createNode(null, name, parent);
     }
 
     private void update() {
@@ -332,6 +385,39 @@ public class PrefuseViewPanel extends JPanel {
         }
         return shortName;
     }
+    
+    public void loadGraph(File f) {
+        XMLGraphReader gr = new XMLGraphReader();
+		gr.setNodeType(DefaultTreeNode.class);
+		try {
+		    graph = gr.loadGraph(f);
+		} catch ( Exception ex ) {
+		    JOptionPane.showMessageDialog(
+					display,
+					"An error occurred while loading the graph.",
+					"Error Loading Graph",
+					JOptionPane.ERROR_MESSAGE);
+				ex.printStackTrace();
+		}
+		registry.setGraph(graph);
+		update();
+    }
+    
+	public void saveGraph(File f) {
+		GraphWriter gw = new XMLGraphWriter();
+		 try {					 
+			gw.writeGraph(graph, f);
+			//saveFile = f;
+			//setEdited(false);
+		 } catch ( Exception ex ) {
+			JOptionPane.showMessageDialog(
+				display,
+				"An error occurred while saving the graph.",
+				"Error Saving Graph",
+				JOptionPane.ERROR_MESSAGE);
+			ex.printStackTrace();
+		 }
+	}    
 
     class DemoColorFunction extends ColorFunction {
 

@@ -286,7 +286,7 @@ public class ConfigurationServiceImpl
 	 * 
 	 * @return
 	 */
-	private ComponentDescription[] makeComponents(List components) {
+	private ComponentDescription[] makeComponents(Collection components) {
 		ComponentDescription[] ret = new ComponentDescription[components.size()];
 		Iterator componentIter = components.iterator();
 		int i = 0;

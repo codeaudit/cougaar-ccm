@@ -30,6 +30,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
@@ -238,7 +239,7 @@ public class JGraphConfigurationViewPanel extends ConfigViewerGraphPanel {
             //gui.completeEltSet.deleteNode(agentNode);
         }
         if (status == Component.HEALTHY || status == Component.UNKNOWN) {
-            Vector childComponents = ac.getChildComponents();
+            Collection childComponents = ac.getChildComponents();
             if (childComponents != null) {
                 Iterator agentCompIter = ac.getChildComponents().iterator();
                 while (agentCompIter.hasNext()) {
@@ -377,6 +378,14 @@ public class JGraphConfigurationViewPanel extends ConfigViewerGraphPanel {
      * @see com.cougaarsoftware.config.gui.ConfigViewerGraphPanel#update(com.cougaarsoftware.config.Society)
      */
     protected void update(Society society) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see com.cougaarsoftware.config.gui.ConfigViewerGraphPanel#addAgentComponent(com.cougaarsoftware.config.AgentComponent, java.lang.Object)
+     */
+    public void addAgentComponent(AgentComponent agentComponent, Object object) {
         // TODO Auto-generated method stub
         
     }
