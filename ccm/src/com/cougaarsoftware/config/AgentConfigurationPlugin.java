@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.component.ComponentDescription;
 import org.cougaar.core.component.StateTuple;
@@ -53,7 +52,6 @@ import org.cougaar.planning.ldm.PlanningFactory;
 import org.cougaar.planning.ldm.plan.NewTask;
 import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.util.UnaryPredicate;
-
 import com.cougaarsoftware.config.domain.ConfigurationDomain;
 import com.cougaarsoftware.config.domain.ConfigurationFactory;
 import com.cougaarsoftware.config.lp.ConfigurationDirective;
@@ -255,7 +253,7 @@ public class AgentConfigurationPlugin extends ParameterizedPlugin {
         }
         configCommunity = getParameter(AgentConfigurationPlugin.CONFIG_COMMUNITY_PARAM);
     }
-    
+
     private boolean hasConfigManager = false;
 
     protected void setupSubscriptions() {
@@ -347,8 +345,7 @@ public class AgentConfigurationPlugin extends ParameterizedPlugin {
         int size =  pluginTuples.size();
         for (int i = 0; i < size; i++) {            
             if (agentComponent == null) {
-                agentComponent = new AgentComponentImpl("Agent:"
-                        + getAgentIdentifier().getAddress(), getUIDService()
+                agentComponent = new AgentComponentImpl(getAgentIdentifier().getAddress(), getUIDService()
                         .nextUID(), getAgentIdentifier());
                 agentComponent.setStatus(Component.HEALTHY);
                 if (getAgentIdentifier().equals(
