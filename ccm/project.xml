@@ -3,7 +3,7 @@
   <pomVersion>3</pomVersion>
   <name>CougaarConfigurationManagement</name>
   <id>ccm</id>
-  <currentVersion>0.2</currentVersion>
+  <currentVersion>0.4</currentVersion>
   <organization>
     <name>Cougaar Software Inc.</name>
     <url>http://www.cougaarsoftware.com</url>
@@ -45,10 +45,20 @@
       <id>0.1</id>
       <name>0.1A</name>
       <tag>HEAD</tag>
-    </version>   
+    </version>  
+    <version>
+      <id>0.2</id>
+      <name>0.2A</name>
+      <tag>HEAD</tag>
+    </version>  
     <version>
       <id>0.3</id>
       <name>0.3A</name>
+      <tag>HEAD</tag>
+    </version> 
+    <version>
+      <id>0.4</id>
+      <name>0.4A</name>
       <tag>HEAD</tag>
     </version> 
   </versions>
@@ -66,13 +76,54 @@
   </developers>
 
   <dependencies>
-    
-    <dependency>
-        <groupId>cougaar</groupId>
-        <artifactId>core</artifactId>
-        <version>11.2_patch-0.3</version>    
-        <url>http://puma1.va.cougaarsoftware.com/maven/</url>
+     <dependency>
+    	<groupId>cougaar</groupId>
+    	<artifactId>core</artifactId>
+    	<version>11.2_patch-0.3</version>    
+    	<url>http://puma1.va.cougaarsoftware.com/maven/</url>
     </dependency>
+    <dependency>
+    	<groupId>cougaar</groupId>
+    	<artifactId>util</artifactId>
+    	<version>11.2</version>    
+    	<url>http://puma1.va.cougaarsoftware.com/maven/</url>
+    </dependency>
+      <dependency>
+		<groupId>cougaar</groupId>
+		<artifactId>build</artifactId>
+		<version>11.2</version>
+		<url>http://puma1.va.cougaarsoftware.com/maven/</url>
+    </dependency>
+     <dependency>
+		<groupId>cougaar</groupId>
+		<artifactId>glm</artifactId>
+		<version>11.2</version>
+		<url>http://puma1.va.cougaarsoftware.com/maven/</url>
+    </dependency>
+    <dependency>
+		<groupId>cougaar</groupId>
+		<artifactId>servicediscovery</artifactId>
+		<version>11.2</version>
+		<url>http://puma1.va.cougaarsoftware.com/maven/</url>
+    </dependency>
+     <dependency>
+		<groupId>cougaar</groupId>
+		<artifactId>xercesImpl</artifactId>
+		<version>11.2</version>
+		<url>http://puma1.va.cougaarsoftware.com/maven/</url>
+    </dependency>
+        <dependency>
+		<groupId>cougaar</groupId>
+		<artifactId>planning</artifactId>
+		<version>11.2</version>
+		<url>http://puma1.va.cougaarsoftware.com/maven/</url>
+    </dependency>
+    <dependency>
+    	<groupId>cougaar</groupId>
+    	<artifactId>servlet</artifactId>
+    	<version>11.2</version>    
+    	<url>http://puma1.va.cougaarsoftware.com/maven/</url>
+    </dependency> 
     <dependency>
     	<groupId>touchgraph</groupId>
     	<artifactId>TGWikiBrowser</artifactId>    	
