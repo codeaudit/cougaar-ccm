@@ -26,7 +26,9 @@ package com.cougaarsoftware.config.gui;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 
+import com.cougaarsoftware.config.AgentComponent;
 import com.cougaarsoftware.config.Component;
 import com.cougaarsoftware.config.Society;
 import com.touchgraph.graphlayout.Node;
@@ -37,8 +39,8 @@ import com.touchgraph.graphlayout.Node;
  * @author mabrams
  */
 public abstract class ConfigViewerGraphPanel extends JPanel {
-	protected ConfigViewerController controller;
-		
+	protected ConfigViewerController controller;    
+	protected boolean showComponents = true;
 
 	/**
 	 * Creates a new ConfigViewerGUI object.
@@ -103,6 +105,10 @@ public abstract class ConfigViewerGraphPanel extends JPanel {
      * @param society
      */
     protected abstract void update(Society society);
+    
+    public void setShowComponents(boolean show) {
+        this.showComponents = show;
+    }
 
     /**
      * @param component
@@ -112,4 +118,13 @@ public abstract class ConfigViewerGraphPanel extends JPanel {
     public ConfigViewerController getController() {
         return controller;
     }
+
+    /**
+     * @param agentComponent
+     * @param object
+     * @param popupMenu
+     */
+    public void addAgentComponent(AgentComponent agentComponent, Object object, JPopupMenu popupMenu) {
+    }
+       
 }
