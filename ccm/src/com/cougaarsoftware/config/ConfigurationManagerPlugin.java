@@ -27,14 +27,15 @@ package com.cougaarsoftware.config;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
+
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.node.NodeIdentificationService;
@@ -53,6 +54,7 @@ import org.cougaar.planning.ldm.plan.NewPrepositionalPhrase;
 import org.cougaar.planning.ldm.plan.NewTask;
 import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.util.UnaryPredicate;
+
 import com.cougaarsoftware.config.domain.ConfigurationDomain;
 import com.cougaarsoftware.config.domain.ConfigurationFactory;
 import com.cougaarsoftware.config.lp.ConfigurationDirective;
@@ -296,18 +298,26 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 	}
 
 	protected void execute() {
-		processAgentConfigurations(agentConfigurationSubscription.getAddedList());
-		processSocietyConfigurations(societyConfigurationSubscription
-				.getAddedList());
-		processSocietyConfigUpdateTasks(societyUpdateSubscription.getAddedList());
+	    Collection c = agentConfigurationSubscription.getAddedCollection();
+	    if (! c.isEmpty()) {
+	        processAgentConfigurations(c);
+	    }
+		c = societyConfigurationSubscription.getAddedCollection();
+		if (! c.isEmpty()) {
+		    processSocietyConfigurations(c);
+		}
+		c = societyUpdateSubscription.getAddedCollection();
+		if (! c.isEmpty()) {
+		    processSocietyConfigUpdateTasks(c);
+		}
 	}
 
 	/**
 	 * @param enumeration
 	 */
-	private void processSocietyConfigUpdateTasks(Enumeration updateEnum) {
-		while (updateEnum.hasMoreElements()) {
-			Task t = (Task) updateEnum.nextElement();
+	private void processSocietyConfigUpdateTasks(Collection updates) {
+		for (Iterator i = updates.iterator(); i.hasNext();) {
+			Task t = (Task) i.next();
 			sendConfiguration();
 			getBlackboardService().publishRemove(t);
 		}
@@ -316,11 +326,13 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 	/**
 	 * @param enumeration
 	 */
-	private void processSocietyConfigurations(Enumeration societyConfigEnum) {
+	private void processSocietyConfigurations(Collection societyConfigs) {
+	    if (logging.isDebugEnabled()) {
+			logging.debug("processSocietyConfigurations()");
+	    }
 		boolean societyModifed = false;
-		while (societyConfigEnum.hasMoreElements()) {
-			SocietyWrapper societyWrapper = (SocietyWrapper) societyConfigEnum
-					.nextElement();
+		for (Iterator i2 = societyConfigs.iterator(); i2.hasNext();) {
+			SocietyWrapper societyWrapper = (SocietyWrapper) i2.next();
 			getBlackboardService().publishRemove(societyWrapper);
 			Society society = societyWrapper.getSociety();
 			if (!society.equals(localSociety)) {
@@ -362,30 +374,21 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 	/**
 	 * @param enumeration
 	 */
-	private void processAgentConfigurations(Enumeration agentConfigEnum) {
+	private void processAgentConfigurations(Collection agentConfigs) {
+	    if (logging.isDebugEnabled()) {
+			logging.debug("processAgentConfigurations()");
+	    }	    
 		boolean societyModified = false;
-		while (agentConfigEnum.hasMoreElements()) {
+		for (Iterator i = agentConfigs.iterator(); i.hasNext();) {
+			AgentComponent agentComponent = (AgentComponent) i.next();
 			if (logging.isDebugEnabled()) {
-				logging.debug("Got updated or new agent configuration");
-			}
-			AgentComponent agentComponent = (AgentComponent) agentConfigEnum
-					.nextElement();
+				logging.debug(this.getAgentIdentifier() + ": Got updated or new agent configuration for " + agentComponent.getName());
+			}			
 			if (localSociety != null) {
-				if (logging.isDebugEnabled()) {
-					logging.debug("Local Society Avaialable, "
-							+ "adding angent configuration to appropriate node");
-				}
 				NodeComponent node = localSociety.getNode(agentComponent
 						.getParentNode());
 				if (node != null) {
-					if (logging.isDebugEnabled()) {
-						logging.debug("Found the node in the society, "
-								+ "adding or updating agent config in that node");
-					}
 					AgentComponent oldComponent = node.addAgent(agentComponent);
-					if (oldComponent != null && oldComponent.getStatus() == 1) {
-						System.out.println("here");
-					}
 					ComponentTracker tracker = (ComponentTracker) trackers
 							.get(agentComponent.getName());
 					if (tracker == null) {
@@ -652,7 +655,7 @@ public class ConfigurationManagerPlugin extends ParameterizedPlugin {
 							- tracker.getLastReadTime().getTimeInMillis();
 					if (timeDiff > statusExpireTimeout) {
 						if (logging.isWarnEnabled()) {
-							logging.warn("Haven not seen status update for component: "
+							logging.warn("Have not seen status update for component: "
 									+ tracker.getComponent() + " for " + timeDiff
 									+ " ms, marking the component UNKNOWN");
 						}
