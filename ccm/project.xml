@@ -47,8 +47,8 @@
       <tag>HEAD</tag>
     </version>   
     <version>
-      <id>0.2</id>
-      <name>0.2A</name>
+      <id>0.3</id>
+      <name>0.3A</name>
       <tag>HEAD</tag>
     </version> 
   </versions>
@@ -66,31 +66,13 @@
   </developers>
 
   <dependencies>
-    <dependency>
-    	<groupId>cougaar</groupId>
-    	<artifactId>core</artifactId>
-    	<version>11.2_patch</version>    
-    	<url>http://puma1.va.cougaarsoftware.com/maven/</url>
-    </dependency>
-    <dependency>
-    	<groupId>cougaar</groupId>
-    	<artifactId>util</artifactId>
-    	<version>11.2</version>    
-    	<url>http://puma1.va.cougaarsoftware.com/maven/</url>
-    </dependency>
-    <dependency>
-    	<groupId>cougaar</groupId>
-    	<artifactId>planning</artifactId>
-    	<version>11.2</version>    
-    	<url>http://puma1.va.cougaarsoftware.com/maven/</url>
-    </dependency>
-    <dependency>
-    	<groupId>cougaar</groupId>
-    	<artifactId>servlet</artifactId>
-    	<version>B11.0</version>    
-    	<url>http://puma1.va.cougaarsoftware.com/maven/</url>
-    </dependency>
     
+    <dependency>
+        <groupId>cougaar</groupId>
+        <artifactId>core</artifactId>
+        <version>11.2_patch</version>    
+        <url>http://puma1.va.cougaarsoftware.com/maven/</url>
+    </dependency>
     <dependency>
     	<groupId>touchgraph</groupId>
     	<artifactId>TGWikiBrowser</artifactId>    	
