@@ -3,7 +3,7 @@
   <pomVersion>3</pomVersion>
   <name>CougaarConfigurationManagement</name>
   <id>ccm</id>
-  <currentVersion>0.4.4</currentVersion>
+  <currentVersion>0.4.5</currentVersion>
   <organization>
     <name>Cougaar Software Inc.</name>
     <url>http://www.cougaarsoftware.com</url>
