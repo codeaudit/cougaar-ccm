@@ -27,12 +27,15 @@ package com.cougaarsoftware.config;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.component.ComponentDescription;
 import org.cougaar.core.component.StateTuple;
@@ -52,6 +55,7 @@ import org.cougaar.planning.ldm.PlanningFactory;
 import org.cougaar.planning.ldm.plan.NewTask;
 import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.util.UnaryPredicate;
+
 import com.cougaarsoftware.config.domain.ConfigurationDomain;
 import com.cougaarsoftware.config.domain.ConfigurationFactory;
 import com.cougaarsoftware.config.lp.ConfigurationDirective;
@@ -128,6 +132,16 @@ public class AgentConfigurationPlugin extends ParameterizedPlugin {
      * subscription to add command tasks
      */
     private IncrementalSubscription addCommandSubscription;
+
+    /**
+     * host name for this agent
+     */
+    private String hostName;
+
+    /**
+     * this agents model representation
+     */
+    transient private AgentComponent agentComponent;
 
     /**
      * configurationf factory for generating config related assets and objects
@@ -267,7 +281,7 @@ public class AgentConfigurationPlugin extends ParameterizedPlugin {
                     if (cce.getCommunity().getEntities().size() > 0) {
                         hasConfigManager = true;
                     }
-                    
+
                 }
 
                 public String getCommunityName() {
@@ -289,7 +303,7 @@ public class AgentConfigurationPlugin extends ParameterizedPlugin {
             updateTask.setVerb(Constants.Verb.AGENT_CONFIGURATION_UPDATE);
             getThreadService()
                     .getThread(this, new PublishAddObject(updateTask))
-                    .schedule(updateInterval, updateInterval);
+                    .schedule(0, updateInterval);
         } else {
             if (getLoggingService().isWarnEnabled()) {
                 getLoggingService()
@@ -301,6 +315,23 @@ public class AgentConfigurationPlugin extends ParameterizedPlugin {
             }
         }
 
+        // construct agent component
+        agentComponent = new AgentComponentImpl(getAgentIdentifier()
+                .getAddress(), getUIDService().nextUID(), getAgentIdentifier());
+        if (getAgentIdentifier().equals(
+                getNodeIdentificationService().getMessageAddress())) {
+            agentComponent.setIsNodeAgent(true);
+            if (hostName == null) {
+                try {
+                    hostName = InetAddress.getLocalHost().getHostName();
+                } catch (UnknownHostException e) {
+                    if (logging.isErrorEnabled()) {
+                        logging.error("Error getting locahost: ", e);
+                    }
+                }
+            }
+            agentComponent.setHost(hostName);
+        }
     }
 
     protected void execute() {
@@ -340,36 +371,34 @@ public class AgentConfigurationPlugin extends ParameterizedPlugin {
      */
     private void composeAgentConfiguration() {
         List pluginTuples = acs.listPlugins();
-       
-        AgentComponent agentComponent = null;
-        int size =  pluginTuples.size();
-        for (int i = 0; i < size; i++) {            
-            if (agentComponent == null) {
-                agentComponent = new AgentComponentImpl(getAgentIdentifier().getAddress(), getUIDService()
-                        .nextUID(), getAgentIdentifier());
-                agentComponent.setStatus(Component.HEALTHY);
-                if (getAgentIdentifier().equals(
-                        getNodeIdentificationService().getMessageAddress())) {
-                    agentComponent.setIsNodeAgent(true);
-                    String hostName = "";
-                    try {
-                        hostName = InetAddress.getLocalHost().getHostName();
-                    } catch (UnknownHostException e) {
-                        if (logging.isErrorEnabled()) {
-                            logging.error("Error getting locahost: ", e);
-                        }
-                    }
-                    agentComponent.setHost(hostName);
-                }
-                agentComponent.setParentNode(getNodeIdentificationService()
-                        .getMessageAddress().getAddress());
-            }
+
+        int size = pluginTuples.size();
+        Collection currentComponents = null;
+        agentComponent.setStatus(Component.HEALTHY);
+        agentComponent.setParentNode(getNodeIdentificationService()
+                .getMessageAddress().getAddress());
+        for (int i = 0; i < size; i++) {
+         
             StateTuple tuple = (StateTuple) pluginTuples.get(i);
             ComponentDescription plugin = tuple.getComponentDescription();
-            agentComponent.addChildComponent(plugin);
-            //add the commands
-            agentComponent.setCommands(commands);
+            if (currentComponents == null) {
+                currentComponents = new ArrayList();
+            }
+            if (!agentComponent.contains(plugin)) {
+                agentComponent.addChildComponent(plugin);
+            }
         }
+        Collection children = agentComponent.getChildComponents();
+        Iterator i = children.iterator();
+        while (i.hasNext()) {
+            ComponentDescription child = (ComponentDescription) i.next();
+            if (currentComponents == null || !currentComponents.contains(child)) {
+                i.remove();
+            }
+        }
+        //add the commands
+        agentComponent.setCommands(commands);
+
         if (agentComponent != null) {
             sendConfiguration(agentComponent);
         }
