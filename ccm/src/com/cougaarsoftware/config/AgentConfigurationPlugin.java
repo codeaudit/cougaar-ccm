@@ -384,6 +384,7 @@ public class AgentConfigurationPlugin extends ParameterizedPlugin {
             if (currentComponents == null) {
                 currentComponents = new ArrayList();
             }
+            currentComponents.add(plugin);
             if (!agentComponent.contains(plugin)) {
                 agentComponent.addChildComponent(plugin);
             }
