@@ -34,13 +34,8 @@ import org.cougaar.core.mts.MessageAddress;
  * @author mabrams
  */
 public interface AgentComponent extends Component {
-	/**
-	 * get all child components for this agent
-	 * 
-	 * @return the list of child components for this agent
-	 */
-	public Vector getChildComponents();
 
+	public Vector getChildComponents();
 	/**
 	 * add a child component to this agent
 	 * 
