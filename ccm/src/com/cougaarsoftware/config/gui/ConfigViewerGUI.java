@@ -159,6 +159,8 @@ public class ConfigViewerGUI extends JPanel {
 		JPanel scrollPanel = new JPanel();
 		scrollPanel.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
+		c.gridx = 0;
+		c.fill = GridBagConstraints.HORIZONTAL;
 		final JPanel topPanel = new JPanel();
 		topPanel.setLayout(new GridBagLayout());
 		localityRadiusCombo = new JComboBox(new String[]{"0", "1", "2", "3", "4",
@@ -173,19 +175,18 @@ public class ConfigViewerGUI extends JPanel {
 		};
 		localityRadiusCombo.addActionListener(setLocaleAL);
 		localityRadiusCombo.setPreferredSize(new Dimension(50, 20));
-		c.gridx = 8;
-		c.weightx = 0;
+		c.gridx++;
 		topPanel.add(new Label("Radius", Label.RIGHT), c);
-		c.gridx = 9;
-		c.weightx = 0;
+		c.gridx++;
 		topPanel.add(localityRadiusCombo, c);
-		c.gridx = 11;
-		c.weightx = 0;
+		c.gridx++;
 		topPanel.add(new Label("Zoom", Label.RIGHT), c);
-		c.gridx = 12;
-		c.weightx = 0.5;
+		c.gridx++;
+		c.weightx = 1;
 		c.insets = new Insets(0, 0, 0, 5);
 		topPanel.add(zoomSB, c);
+		
+		
 		c.insets = new Insets(0, 0, 0, 0);
 		add(topPanel, BorderLayout.NORTH);
 		//        JSplitPane jsp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);

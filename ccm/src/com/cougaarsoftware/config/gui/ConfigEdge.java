@@ -33,6 +33,10 @@ import com.touchgraph.graphlayout.TGPanel;
  * @author mabrams
  */
 public class ConfigEdge extends com.touchgraph.graphlayout.Edge {
+    
+    public static Color MOUSE_OVER_COLOR = new Color(255, 72, 72);
+    public static Color DEFAULT_COLOR = new Color(153,153,153);
+    
 	/**
 	 * @param arg0
 	 * @param arg1
@@ -48,6 +52,7 @@ public class ConfigEdge extends com.touchgraph.graphlayout.Edge {
 	public ConfigEdge(Node f, Node t, int len) {
 		super(f, t, len);
 	}
+	
 	public void paint(Graphics g, TGPanel tgPanel) {
 		Color c;
 		if (tgPanel.getMouseOverN() == from || tgPanel.getMouseOverE() == this)
@@ -59,7 +64,8 @@ public class ConfigEdge extends com.touchgraph.graphlayout.Edge {
 		int x2 = (int) to.drawx;
 		int y2 = (int) to.drawy;
 		if (intersects(tgPanel.getSize())) {
-			paintArrow(g, x1, y1, x2, y2, c);
+		    g.setColor(c);
+			g.drawLine(x1, y1, x2, y2);
 		}
 	}
 }
