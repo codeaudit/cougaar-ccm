@@ -65,18 +65,9 @@ public class ConfigViewerApplicationPlugin extends ComponentPlugin implements
 
     private ConfigViewerPanel configViewer;
 
-    private static UnaryPredicate societyConfigurationPredicate = new UnaryPredicate() {
-
-        public boolean execute(Object o) {
-            return o instanceof Society;
-        }
-    };
-
     private LoggingService logging;
 
     private ConfigurationService configService;
-
-    private final static String PARAM_GRAPH_PANEL_CLASS = "graphPanelClass";
 
     private String graphPanelClass;
 
@@ -145,13 +136,10 @@ public class ConfigViewerApplicationPlugin extends ComponentPlugin implements
 
     private IncrementalSubscription societySubscription = null;
 
-    private UnaryPredicate societySubscriptionPredicate = new UnaryPredicate() {
+    private UnaryPredicate societyPredicate = new UnaryPredicate() {
 
         public boolean execute(Object o) {
-            if (o instanceof Society) {
-                return true;
-            }
-            return false;
+            return o instanceof Society;
         }
     };
 
@@ -218,7 +206,7 @@ public class ConfigViewerApplicationPlugin extends ComponentPlugin implements
         updateNodeSubscription = (IncrementalSubscription) getBlackboardService()
                 .subscribe(updateNodeSubscriptionPredicate);
         societySubscription = (IncrementalSubscription) getBlackboardService()
-                .subscribe(societySubscriptionPredicate);
+                .subscribe(societyPredicate);
     }
 
     /**
@@ -305,7 +293,7 @@ public class ConfigViewerApplicationPlugin extends ComponentPlugin implements
         if (!inTransaction) {
             getBlackboardService().openTransaction();
         }
-        Collection c = blackboard.query(societyConfigurationPredicate);
+        Collection c = blackboard.query(societyPredicate);
         Iterator iter = c.iterator();
         Society society = null;
         while (iter.hasNext()) {
@@ -386,4 +374,5 @@ public class ConfigViewerApplicationPlugin extends ComponentPlugin implements
     public String getGraphPanelClass() {
         return graphPanelClass;
     }
+    
 }
