@@ -214,7 +214,7 @@ public class ConfigurationServiceImpl
 				mobileAgentAddress, destNodeAddress);
 		//Create Agent Control for removal of agent
 		AgentControl removeControl = mobilityFactory.createAgentControl(null,
-				mobileAgentAddress, removeticket);
+				destNodeAddress, removeticket);
 		BlackboardAccess bbAccess = new BlackboardAccess(BlackboardAccess.ADD_TYPE);
 		bbAccess.addObject(removeControl);
 		threadService.getThread(this, bbAccess).schedule(0);
