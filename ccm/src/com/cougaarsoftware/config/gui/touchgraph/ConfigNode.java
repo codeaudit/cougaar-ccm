@@ -22,7 +22,7 @@
  * 
  * </copyright>
  */
-package com.cougaarsoftware.config.gui;
+package com.cougaarsoftware.config.gui.touchgraph;
 
 import java.awt.Color;
 import java.awt.Font;

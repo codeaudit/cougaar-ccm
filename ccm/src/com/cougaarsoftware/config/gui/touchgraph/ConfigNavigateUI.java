@@ -22,7 +22,7 @@
  * 
  * </copyright>
  */
-package com.cougaarsoftware.config.gui;
+package com.cougaarsoftware.config.gui.touchgraph;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -52,8 +52,8 @@ import com.touchgraph.graphlayout.interaction.TGUserInterface;
  * @author mabrams
  */
 public class ConfigNavigateUI extends TGUserInterface {
-	private ConfigViewerGUI gui;
-	private TGConfigurationViewPanel cvp;
+	private TGConfigViewerGraphPanel gui;
+	private ConfigTGPanel cvp;
 	private ConfigMouseListener ml;
 	private TGAbstractDragUI hvDragUI;
 	private DragNodeUI dragNodeUI;
@@ -65,7 +65,7 @@ public class ConfigNavigateUI extends TGUserInterface {
 	ConfigNode popupNode;
 	Edge popupEdge;
 
-	public ConfigNavigateUI(ConfigViewerGUI gui) {
+	public ConfigNavigateUI(TGConfigViewerGraphPanel gui) {
 		this.gui = gui;
 		cvp = gui.getTGConfigurationViewPanel();
 		hvDragUI = gui.hvScroll.getHVDragUI();
@@ -196,7 +196,7 @@ public class ConfigNavigateUI extends TGUserInterface {
 
 		public void actionPerformed(ActionEvent e) {
 			if (popupNode != null) {
-				gui.controller.executeCommand(command, node.getAgentAddress());
+				gui.getController().executeCommand(command, node.getAgentAddress());
 			}
 		}
 	};

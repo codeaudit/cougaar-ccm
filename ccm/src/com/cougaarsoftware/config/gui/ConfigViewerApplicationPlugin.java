@@ -57,278 +57,332 @@ import com.cougaarsoftware.config.service.ConfigurationService;
  * @author mabrams
  */
 public class ConfigViewerApplicationPlugin extends ComponentPlugin {
-	protected BlackboardQueryService bbQueryService;
-	protected ThreadService threadService;
-	ConfigViewer configViewer;
-	private static UnaryPredicate societyConfigurationPredicate = new UnaryPredicate() {
-		public boolean execute(Object o) {
-			return o instanceof Society;
-		}
-	};
-	private LoggingService logging;
-	private ConfigurationService configService;
 
-	/**
-	 * Set LoggingService at load time
-	 * 
-	 * @param service
-	 *          LoggingService
-	 */
-	public void setLoggingService(LoggingService service) {
-		this.logging = service;
-	}
+    protected BlackboardQueryService bbQueryService;
 
-	/**
-	 * Get LoggingService
-	 * 
-	 * @return LoggingService
-	 */
-	public LoggingService getLoggingService() {
-		return this.logging;
-	}
+    protected ThreadService threadService;
 
-	public ConfigurationService getConfigurationService() {
-		if (this.configService == null) {
-			this.configService = (ConfigurationService) getServiceBroker()
-					.getService(this, ConfigurationService.class, null);
-		}
-		return this.configService;
-	}
-	private IncrementalSubscription startConfigAppSubscription = null;
-	private TaskPredicate startConfigAppPredicate = new TaskPredicate() {
-		public boolean execute(Task o) {
-			if (o.getVerb().equals(Constants.Verb.START_CONFIG_VIEWER)) {
-				return true;
-			}
-			return false;
-		}
-	};
-	private IncrementalSubscription updateAgentSubscription = null;
-	private TaskPredicate updateAgentSubscriptionPredicate = new TaskPredicate() {
-		public boolean execute(Task o) {
-			if (o.getVerb().equals(Constants.Verb.UPDATE_AGENT_CONFIG_TASK)) {
-				return true;
-			}
-			return false;
-		}
-	};
-	private IncrementalSubscription updateNodeSubscription = null;
-	private TaskPredicate updateNodeSubscriptionPredicate = new TaskPredicate() {
-		public boolean execute(Task o) {
-			if (o.getVerb().equals(Constants.Verb.UPDATE_NODE_CONFIG_TASK)) {
-				return true;
-			}
-			return false;
-		}
-	};
-	private IncrementalSubscription societySubscription = null;
-	private UnaryPredicate societySubscriptionPredicate = new UnaryPredicate() {
-		public boolean execute(Object o) {
-			if (o instanceof Society) {
-				return true;
-			}
-			return false;
-		}
-	};
-	private DomainService domainService;
+    ConfigViewerPanel configViewer;
 
-	/**
-	 * set DomainService at load time
-	 * 
-	 * @param service
-	 *          DomainService
-	 */
-	public void setDomainService(DomainService service) {
-		this.domainService = service;
-	}
+    private static UnaryPredicate societyConfigurationPredicate = new UnaryPredicate() {
 
-	/**
-	 * Get DomainService
-	 * 
-	 * @return DomainService
-	 */
-	public DomainService getDomainService() {
-		return this.domainService;
-	}
+        public boolean execute(Object o) {
+            return o instanceof Society;
+        }
+    };
 
-	/**
-	 * Conveience method for getting the PlanningFactory
-	 * 
-	 * @return the PlanningFactory
-	 */
-	protected PlanningFactory getPlanningFactory() {
-		return ((PlanningFactory) getDomainService().getFactory("planning"));
-	}
+    private LoggingService logging;
 
-	protected BlackboardQueryService getBlackboardQueryService() {
-		if (bbQueryService == null) {
-			bbQueryService = (BlackboardQueryService) getServiceBroker().getService(
-					this, BlackboardQueryService.class, null);
-		}
-		return bbQueryService;
-	}
+    private ConfigurationService configService;
 
-	protected void setBlackboardQueryService(BlackboardQueryService bbQueryService) {
-		this.bbQueryService = bbQueryService;
-	}
+    private final static String PARAM_GRAPH_PANEL_CLASS = "graphPanelClass";
 
-	protected ThreadService getThreadService() {
-		if (threadService == null) {
-			threadService = (ThreadService) getServiceBroker().getService(this,
-					ThreadService.class, null);
-		}
-		return threadService;
-	}
+    private String graphPanelClass;
 
-	protected void setTheadService(ThreadService threadService) {
-		this.threadService = threadService;
-	}
+    /**
+     * Set LoggingService at load time
+     * 
+     * @param service
+     *            LoggingService
+     */
+    public void setLoggingService(LoggingService service) {
+        this.logging = service;
+    }
 
-	protected void setupSubscriptions() {
-		startConfigAppSubscription = (IncrementalSubscription) getBlackboardService()
-				.subscribe(startConfigAppPredicate);
-		updateAgentSubscription = (IncrementalSubscription) getBlackboardService()
-				.subscribe(updateAgentSubscriptionPredicate);
-		updateNodeSubscription = (IncrementalSubscription) getBlackboardService()
-				.subscribe(updateNodeSubscriptionPredicate);
-		societySubscription = (IncrementalSubscription) getBlackboardService()
-				.subscribe(societySubscriptionPredicate);
-	}
+    /**
+     * Get LoggingService
+     * 
+     * @return LoggingService
+     */
+    public LoggingService getLoggingService() {
+        return this.logging;
+    }
 
-	/**
-	 * Query the blackboard.
-	 * 
-	 * @param unaryPredicate
-	 *          predicate to match against
-	 * 
-	 * @return all objects matching the given predicate
-	 */
-	public Collection queryBlackBoard(UnaryPredicate unaryPredicate) {
-		if (bbQueryService == null) {
-			getBlackboardQueryService();
-		}
-		return bbQueryService.query(unaryPredicate);
-	}
+    public ConfigurationService getConfigurationService() {
+        if (this.configService == null) {
+            this.configService = (ConfigurationService) getServiceBroker()
+                    .getService(this, ConfigurationService.class, null);
+        }
+        return this.configService;
+    }
 
-	protected void execute() {
-		Enumeration e = startConfigAppSubscription.getAddedList();
-		while (e.hasMoreElements()) {
-			Task t = (Task) e.nextElement();
-			if (configViewer == null) {
-				configViewer = new ConfigViewer(this);
-				configViewer.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				//Display the window.
-				configViewer.pack();
-				configViewer.setVisible(true);
-			}
-			getBlackboardService().publishRemove(t);
-		}
-		e = null;
-		e = societySubscription.getAddedList();
-		while (e.hasMoreElements()) {
-			Society society = (Society) e.nextElement();
-			if (configViewer != null) {
-				configViewer.updateTreeData(society);
-			}
-		}
-		e = null;
-		e = societySubscription.getChangedList();
-		while (e.hasMoreElements()) {
-			Society society = (Society) e.nextElement();
-			if (configViewer != null) {
-				configViewer.updateTreeData(society);
-			}
-		}
-		e = null;
-		e = updateAgentSubscription.getAddedList();
-		while (e.hasMoreElements()) {
-			Task t = (Task) e.nextElement();
-			PrepositionalPhrase pp = t
-					.getPrepositionalPhrase(Constants.Preposition.AGENT_COMPONENT);
-			if (configViewer != null) {
-				configViewer.updateAgentData((AgentComponent) pp.getIndirectObject());
-			}
-			getBlackboardService().publishRemove(t);
-		}
-		e = null;
-		e = updateNodeSubscription.getAddedList();
-		while (e.hasMoreElements()) {
-			Task t = (Task) e.nextElement();
-			PrepositionalPhrase pp = t
-					.getPrepositionalPhrase(Constants.Preposition.NODE_COMPONENT);
-			if (configViewer != null) {
-				configViewer.updateNodeData((NodeComponent) pp.getIndirectObject());
-			}
-			getBlackboardService().publishRemove(t);
-		}
-	}
+    private IncrementalSubscription startConfigAppSubscription = null;
 
-	/**
-	 * get the society configuration from the blackboard
-	 * 
-	 * @return DOCUMENT ME!
-	 */
-	public Society getSocietyConfiguration(boolean inTransaction) {
-		if (logging.isDebugEnabled()) {
-			logging.debug("Get the society object from the blackboard");
-		}
-		if (!inTransaction) {
-			getBlackboardService().openTransaction();
-		}
-		Collection c = blackboard.query(societyConfigurationPredicate);
-		Iterator iter = c.iterator();
-		Society society = null;
-		while (iter.hasNext()) {
-			society = (Society) iter.next();
-		}
-		if (!inTransaction) {
-			getBlackboardService().closeTransaction();
-		}
-		return society;
-	}
+    private TaskPredicate startConfigAppPredicate = new TaskPredicate() {
 
-	/**
-	 * @param agentName
-	 * @param nodeName
-	 */
-	public void removeAgent(String agentName, String nodeName) {
-		if (getConfigurationService() != null) {
-			getBlackboardService().openTransaction();
-			String cAgentName = agentName.substring(agentName.lastIndexOf(':') + 1);
-			getConfigurationService().removeAgent(cAgentName,
-					MessageAddress.getMessageAddress(nodeName));
-			Society society = getSocietyConfiguration(true);
-			if (society != null) {
-				AgentComponent ac = society.getAgent(agentName);
-				ac.setStatus(Component.DEAD);
-//				society.removeAgent(ac);
-				if (configViewer != null) {
-					configViewer.updateAgentData(ac);
-				}
-				getConfigurationService().removeAgent(cAgentName,
-						MessageAddress.getMessageAddress(ac.getParentNode()));
-			}
-			getBlackboardService().closeTransaction();
-		}
-	}
+        public boolean execute(Task o) {
+            if (o.getVerb().equals(Constants.Verb.START_CONFIG_VIEWER)) {
+                return true;
+            }
+            return false;
+        }
+    };
 
-	public String getAgentId() {
-		return getAgentIdentifier().getAddress();
-	}
+    private IncrementalSubscription updateAgentSubscription = null;
 
-	/**
-	 * @param command
-	 * @param node
-	 */
-	public void executeCommand(Capability command, MessageAddress agentAddress) {
-		try {
-			NewTask task = getPlanningFactory().newTask();
-			task.setVerb(Verb.get(command.getVerb()));
-			task.setDestination(agentAddress);
-			getBlackboardService().openTransaction();
-			getBlackboardService().publishAdd(task);
-		} finally {
-			getBlackboardService().closeTransaction();
-		}
-	}
+    private TaskPredicate updateAgentSubscriptionPredicate = new TaskPredicate() {
+
+        public boolean execute(Task o) {
+            if (o.getVerb().equals(Constants.Verb.UPDATE_AGENT_CONFIG_TASK)) {
+                return true;
+            }
+            return false;
+        }
+    };
+
+    private IncrementalSubscription updateNodeSubscription = null;
+
+    private TaskPredicate updateNodeSubscriptionPredicate = new TaskPredicate() {
+
+        public boolean execute(Task o) {
+            if (o.getVerb().equals(Constants.Verb.UPDATE_NODE_CONFIG_TASK)) {
+                return true;
+            }
+            return false;
+        }
+    };
+
+    private IncrementalSubscription societySubscription = null;
+
+    private UnaryPredicate societySubscriptionPredicate = new UnaryPredicate() {
+
+        public boolean execute(Object o) {
+            if (o instanceof Society) {
+                return true;
+            }
+            return false;
+        }
+    };
+
+    private DomainService domainService;
+
+    /**
+     * set DomainService at load time
+     * 
+     * @param service
+     *            DomainService
+     */
+    public void setDomainService(DomainService service) {
+        this.domainService = service;
+    }
+
+    /**
+     * Get DomainService
+     * 
+     * @return DomainService
+     */
+    public DomainService getDomainService() {
+        return this.domainService;
+    }
+
+    /**
+     * Conveience method for getting the PlanningFactory
+     * 
+     * @return the PlanningFactory
+     */
+    protected PlanningFactory getPlanningFactory() {
+        return ((PlanningFactory) getDomainService().getFactory("planning"));
+    }
+
+    protected BlackboardQueryService getBlackboardQueryService() {
+        if (bbQueryService == null) {
+            bbQueryService = (BlackboardQueryService) getServiceBroker()
+                    .getService(this, BlackboardQueryService.class, null);
+        }
+        return bbQueryService;
+    }
+
+    protected void setBlackboardQueryService(
+            BlackboardQueryService bbQueryService) {
+        this.bbQueryService = bbQueryService;
+    }
+
+    protected ThreadService getThreadService() {
+        if (threadService == null) {
+            threadService = (ThreadService) getServiceBroker().getService(this,
+                    ThreadService.class, null);
+        }
+        return threadService;
+    }
+
+    protected void setTheadService(ThreadService threadService) {
+        this.threadService = threadService;
+    }
+
+    protected void setupSubscriptions() {
+        startConfigAppSubscription = (IncrementalSubscription) getBlackboardService()
+                .subscribe(startConfigAppPredicate);
+        updateAgentSubscription = (IncrementalSubscription) getBlackboardService()
+                .subscribe(updateAgentSubscriptionPredicate);
+        updateNodeSubscription = (IncrementalSubscription) getBlackboardService()
+                .subscribe(updateNodeSubscriptionPredicate);
+        societySubscription = (IncrementalSubscription) getBlackboardService()
+                .subscribe(societySubscriptionPredicate);
+    }
+
+    /**
+     * Query the blackboard.
+     * 
+     * @param unaryPredicate
+     *            predicate to match against
+     * 
+     * @return all objects matching the given predicate
+     */
+    public Collection queryBlackBoard(UnaryPredicate unaryPredicate) {
+        if (bbQueryService == null) {
+            getBlackboardQueryService();
+        }
+        return bbQueryService.query(unaryPredicate);
+    }
+
+    protected void execute() {
+        Enumeration e = startConfigAppSubscription.getAddedList();
+        while (e.hasMoreElements()) {
+            Task t = (Task) e.nextElement();
+            if (configViewer == null) {
+                configViewer = new ConfigViewerPanel(this);
+                JFrame frame = new JFrame();
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.getContentPane().add(configViewer);
+                frame.setJMenuBar(configViewer.createMenuBar());
+                frame.pack();
+                frame.setVisible(true);
+            }
+            getBlackboardService().publishRemove(t);
+        }
+        e = null;
+        e = societySubscription.getAddedList();
+        while (e.hasMoreElements()) {
+            Society society = (Society) e.nextElement();
+            if (configViewer != null) {
+                configViewer.updateTreeData(society);
+            }
+        }
+        e = null;
+        e = societySubscription.getChangedList();
+        while (e.hasMoreElements()) {
+            Society society = (Society) e.nextElement();
+            if (configViewer != null) {
+                configViewer.updateTreeData(society);
+            }
+        }
+        e = null;
+        e = updateAgentSubscription.getAddedList();
+        while (e.hasMoreElements()) {
+            Task t = (Task) e.nextElement();
+            PrepositionalPhrase pp = t
+                    .getPrepositionalPhrase(Constants.Preposition.AGENT_COMPONENT);
+            if (configViewer != null) {
+                configViewer.updateAgentData((AgentComponent) pp
+                        .getIndirectObject());
+            }
+            getBlackboardService().publishRemove(t);
+        }
+        e = null;
+        e = updateNodeSubscription.getAddedList();
+        while (e.hasMoreElements()) {
+            Task t = (Task) e.nextElement();
+            PrepositionalPhrase pp = t
+                    .getPrepositionalPhrase(Constants.Preposition.NODE_COMPONENT);
+            if (configViewer != null) {
+                configViewer.updateNodeData((NodeComponent) pp
+                        .getIndirectObject());
+            }
+            getBlackboardService().publishRemove(t);
+        }
+    }
+
+    /**
+     * get the society configuration from the blackboard
+     * 
+     * @return DOCUMENT ME!
+     */
+    public Society getSocietyConfiguration(boolean inTransaction) {
+        if (logging.isDebugEnabled()) {
+            logging.debug("Get the society object from the blackboard");
+        }
+        if (!inTransaction) {
+            getBlackboardService().openTransaction();
+        }
+        Collection c = blackboard.query(societyConfigurationPredicate);
+        Iterator iter = c.iterator();
+        Society society = null;
+        while (iter.hasNext()) {
+            society = (Society) iter.next();
+        }
+        if (!inTransaction) {
+            getBlackboardService().closeTransaction();
+        }
+        return society;
+    }
+
+    /**
+     * @param agentName
+     * @param nodeName
+     */
+    public void removeAgent(String agentName, String nodeName) {
+        if (getConfigurationService() != null) {
+            getBlackboardService().openTransaction();
+            String cAgentName = agentName
+                    .substring(agentName.lastIndexOf(':') + 1);
+            getConfigurationService().removeAgent(cAgentName,
+                    MessageAddress.getMessageAddress(nodeName));
+            Society society = getSocietyConfiguration(true);
+            if (society != null) {
+                AgentComponent ac = society.getAgent(agentName);
+                ac.setStatus(Component.DEAD);
+                //				society.removeAgent(ac);
+                if (configViewer != null) {
+                    configViewer.updateAgentData(ac);
+                }
+                getConfigurationService().removeAgent(cAgentName,
+                        MessageAddress.getMessageAddress(ac.getParentNode()));
+            }
+            getBlackboardService().closeTransaction();
+        }
+    }
+
+    public String getAgentId() {
+        return getAgentIdentifier().getAddress();
+    }
+
+    /**
+     * @param command
+     * @param node
+     */
+    public void executeCommand(Capability command, MessageAddress agentAddress) {
+        try {
+            NewTask task = getPlanningFactory().newTask();
+            task.setVerb(Verb.get(command.getVerb()));
+            task.setDestination(agentAddress);
+            getBlackboardService().openTransaction();
+            getBlackboardService().publishAdd(task);
+        } finally {
+            getBlackboardService().closeTransaction();
+        }
+    }
+
+    public void load() {
+        super.load();
+        Collection p = getParameters();
+        int idx;
+        for (Iterator i = p.iterator(); i.hasNext();) {
+            String s = (String) i.next();
+            if ((idx = s.indexOf('=')) != -1) {
+                String key = s.substring(0, idx);
+                if (key.equals(PARAM_GRAPH_PANEL_CLASS)) {
+                    graphPanelClass = s.substring(idx + 1, s.length());
+                }
+            }
+        }
+        if (graphPanelClass == null && getLoggingService().isErrorEnabled()) {
+            getLoggingService().error(
+                    "Required parameter '" + PARAM_GRAPH_PANEL_CLASS
+                            + "' not specified.");
+        }
+    }
+    
+    public String getGraphPanelClass() {
+        return graphPanelClass;
+    }
 }

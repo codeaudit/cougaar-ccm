@@ -22,7 +22,7 @@
  * 
  * </copyright>
  */
-package com.cougaarsoftware.config.gui;
+package com.cougaarsoftware.config.gui.touchgraph;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -43,14 +43,14 @@ import com.touchgraph.graphlayout.TGPanel;
  * 
  * @author mabrams
  */
-public class TGConfigurationViewPanel extends TGPanel {
+public class ConfigTGPanel extends TGPanel {
 	private Society society;
-	private ConfigViewerGUI gui;
+	private TGConfigViewerGraphPanel gui;
 
 	/**
 	 * creates a new TGConfigurationViewPanel object
 	 */
-	public TGConfigurationViewPanel(ConfigViewerGUI gui) {
+	public ConfigTGPanel(TGConfigViewerGraphPanel gui) {
 		this.gui = gui;
 	}
 

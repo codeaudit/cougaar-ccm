@@ -36,13 +36,15 @@ import com.cougaarsoftware.config.NodeComponent;
 import com.cougaarsoftware.config.NodeComponentImpl;
 import com.cougaarsoftware.config.Society;
 import com.cougaarsoftware.config.SocietyImpl;
+import com.cougaarsoftware.config.gui.touchgraph.TGConfigViewerGraphPanel;
+import com.cougaarsoftware.config.gui.touchgraph.ConfigTGPanel;
 import com.touchgraph.graphlayout.graphelements.GraphEltSet;
 
 /**
  * @author mabrams
  */
 public class TGConfigurationViewPanelTest extends TestCase {
-	private TGConfigurationViewPanel panel;
+	private ConfigTGPanel panel;
 
 	public static void main(String[] args) {
 		TGConfigurationViewPanelTest test = new TGConfigurationViewPanelTest();
@@ -61,9 +63,9 @@ public class TGConfigurationViewPanelTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		ConfigViewerApplicationPlugin controller = new ConfigViewerApplicationPlugin();
-		ConfigViewerGUI gui = new ConfigViewerGUI(controller);
+		TGConfigViewerGraphPanel gui = new TGConfigViewerGraphPanel(controller);
 		GraphEltSet completeEltSet = new GraphEltSet();
-		panel = new TGConfigurationViewPanel(gui);
+		panel = new ConfigTGPanel(gui);
 		panel.setGraphEltSet(completeEltSet);
 	}
 
