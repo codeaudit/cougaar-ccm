@@ -70,7 +70,7 @@
     <dependency>
         <groupId>cougaar</groupId>
         <artifactId>core</artifactId>
-        <version>11.2_patch</version>    
+        <version>11.2_patch-0.3</version>    
         <url>http://puma1.va.cougaarsoftware.com/maven/</url>
     </dependency>
     <dependency>
