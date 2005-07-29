@@ -1,0 +1,135 @@
+Index: src/org/cougaar/core/agent/AgentImpl.java
+===================================================================
+RCS file: /cvsroot/core/core/src/org/cougaar/core/agent/AgentImpl.java,v
+retrieving revision 1.6
+diff -u -r1.6 AgentImpl.java
+--- src/org/cougaar/core/agent/AgentImpl.java	6 Oct 2004 18:42:42 -0000	1.6
++++ src/org/cougaar/core/agent/AgentImpl.java	29 Jul 2005 11:43:33 -0000
+@@ -27,15 +27,20 @@
+ package org.cougaar.core.agent;
+ 
+ import java.net.URL;
++import java.util.ArrayList;
+ import java.util.Collection;
++import java.util.Iterator;
+ import java.util.LinkedList;
+ import java.util.List;
++
++import org.cougaar.core.component.Binder;
+ import org.cougaar.core.component.ComponentDescription;
+ import org.cougaar.core.component.ComponentDescriptions;
+ import org.cougaar.core.component.Service;
+ import org.cougaar.core.component.ServiceBroker;
+ import org.cougaar.core.component.ServiceProvider;
+ import org.cougaar.core.mts.MessageAddress;
++import org.cougaar.core.plugin.PluginBase;
+ import org.cougaar.core.service.AgentContainmentService;
+ import org.cougaar.core.service.AgentIdentificationService;
+ import org.cougaar.util.GenericStateModel;
+@@ -191,6 +196,36 @@
+         public boolean contains(ComponentDescription desc) {
+           return agent.contains(desc);
+         }
++        public List listComponents() {
++          return AgentImpl.this.listComponents();         
++        }
++          public List listBinders() {
++              return AgentImpl.this.listBinders();
++          }
++          public List listPlugins() {
++              List binders = listBinders();
++              Iterator i = binders.iterator();
++              List tmp = null;
++              while (i.hasNext()) {
++                  Binder binder = (Binder) i.next();              
++                  Object state = binder.getState();
++                  if (state != null) {
++                    if (state instanceof ComponentDescriptions) {
++                        ComponentDescriptions cds = (ComponentDescriptions) state;
++                        List plugins = cds
++                                .extractInsertionPointComponent(PluginBase.INSERTION_POINT);
++                        Iterator j = plugins.iterator();
++                        while (j.hasNext()) {
++                          if (tmp == null) {
++                              tmp = new ArrayList();
++                          }
++                          tmp.add(j.next());
++                        }
++                    }
++                  }               
++              }
++              return tmp;
++          }
+       };
+     return add_service(clazz, service);
+   }
+Index: src/org/cougaar/core/agent/service/containment/AgentContainmentServiceImpl.java
+===================================================================
+RCS file: /cvsroot/core/core/src/org/cougaar/core/agent/service/containment/AgentContainmentServiceImpl.java,v
+retrieving revision 1.5
+diff -u -r1.5 AgentContainmentServiceImpl.java
+--- src/org/cougaar/core/agent/service/containment/AgentContainmentServiceImpl.java	1 Sep 2004 16:29:20 -0000	1.5
++++ src/org/cougaar/core/agent/service/containment/AgentContainmentServiceImpl.java	29 Jul 2005 11:43:33 -0000
+@@ -26,6 +26,8 @@
+ 
+ package org.cougaar.core.agent.service.containment;
+ 
++import java.util.List;
++
+ import org.cougaar.core.component.ComponentDescription;
+ import org.cougaar.core.component.Container;
+ import org.cougaar.core.service.AgentContainmentService;
+@@ -59,5 +61,26 @@
+   public boolean contains(ComponentDescription desc) {
+     return container.contains(desc);
+   }
++  
++  /* (non-Javadoc)
++   * @see org.cougaar.core.service.AgentContainmentService#listComponents()
++   */
++  public List listComponents() {
++      return null;
++  }
++  /* (non-Javadoc)
++   * @see org.cougaar.core.service.AgentContainmentService#listBinders()
++   */
++  public List listBinders() {
++      // TODO Auto-generated method stub
++      return null;
++  }
++  /* (non-Javadoc)
++   * @see org.cougaar.core.service.AgentContainmentService#listPlugins()
++   */
++  public List listPlugins() {
++      // TODO Auto-generated method stub
++      return null;
++  }
+ 
+ }
+Index: src/org/cougaar/core/service/AgentContainmentService.java
+===================================================================
+RCS file: /cvsroot/core/core/src/org/cougaar/core/service/AgentContainmentService.java,v
+retrieving revision 1.4
+diff -u -r1.4 AgentContainmentService.java
+--- src/org/cougaar/core/service/AgentContainmentService.java	20 Oct 2004 14:05:38 -0000	1.4
++++ src/org/cougaar/core/service/AgentContainmentService.java	29 Jul 2005 11:43:33 -0000
+@@ -26,6 +26,8 @@
+ 
+ package org.cougaar.core.service;
+ 
++import java.util.List;
++
+ import org.cougaar.core.component.ComponentDescription;
+ import org.cougaar.core.component.Service;
+ 
+@@ -49,5 +51,9 @@
+   boolean contains(ComponentDescription desc);
+ 
+   // add "list" enhancements here -- see bug 1113
+-
++  List listComponents();
++  
++  List listBinders();
++  
++  List listPlugins();
+ }
