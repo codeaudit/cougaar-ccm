@@ -1,0 +1,227 @@
+<?xml version="1.0"?>
+<project xmlns:j="jelly:core" xmlns:ant="jelly:ant">
+  <pomVersion>3</pomVersion>
+  <name>CougaarConfigurationManagement</name>
+  <id>ccm</id>
+  <currentVersion>0.5.1A</currentVersion>
+  <organization>
+    <name>Cougaar Software Inc.</name>
+    <url>http://www.cougaarsoftware.com</url>
+  </organization>
+  <inceptionYear>2001</inceptionYear>
+  <package>com.cougaarsoftware.core</package>
+
+  <shortDescription>Cougaar Configuration Management</shortDescription>
+
+ 
+
+  <description>
+   Cougaar Configuration Management provides infrastructure utilities for discovering, viewing and modifying a cougaar configuration 
+  </description>
+  
+  <issueTrackingUrl>
+	ccm.cougaar.org
+  </issueTrackingUrl>
+  
+  <siteAddress>
+	ccm.cougaar.org
+  </siteAddress>
+  
+  <siteDirectory>
+	/var/www/gforge-projects/ccm
+  </siteDirectory>
+
+  <repository>
+    <connection>
+      scm:cvs:ext:${maven.username}@cougaar.org:/cvsroot/ccm:ccm
+   </connection>
+    <url>
+		http://cougaar.org/cgi-bin/viewcvs.cgi/?cvsroot=ccm
+    </url>
+  </repository>
+
+  <versions>
+    <version>
+      <id>0.1</id>
+      <name>0.1A</name>
+      <tag>HEAD</tag>
+    </version>  
+    <version>
+      <id>0.2</id>
+      <name>0.2A</name>
+      <tag>HEAD</tag>
+    </version>  
+    <version>
+      <id>0.3</id>
+      <name>0.3A</name>
+      <tag>HEAD</tag>
+    </version> 
+    <version>
+      <id>0.4</id>
+      <name>0.4A</name>
+      <tag>HEAD</tag>
+    </version> 
+    <version>
+      <id>0.4</id>
+      <name>0.5.1</name>
+      <tag>HEAD</tag>
+    </version> 
+  </versions>
+
+ 
+  <developers>
+
+    <developer>
+      <name>Matt Abrams</name>
+      <id>mabrams</id>
+      <email>mabrams@cougaarsoftware.com</email>
+      <organization>CSI</organization>
+    </developer>
+    <developer>
+      <name>Alain G. N. Anyouzoa</name>
+      <id>aanyouzoa</id>
+      <email>aanyouzoa@cougaarsoftware.com</email>
+      <organization>CSI</organization>
+    </developer>      
+  </developers>
+
+  <dependencies>
+     <dependency>
+    	<groupId>cougaar</groupId>
+    	<artifactId>core</artifactId>
+    	<version>12.0.1-patch</version>    
+    	<url>http://puma1.va.cougaarsoftware.com/maven/</url>
+    </dependency>
+    <dependency>
+    	<groupId>cougaar</groupId>
+    	<artifactId>util</artifactId>
+    	<version>11.2</version>    
+    	<url>http://puma1.va.cougaarsoftware.com/maven/</url>
+    </dependency>
+    <dependency>
+        <groupId>ehcache</groupId>
+        <artifactId>ehcache</artifactId>
+        <version>1.1</version>
+        <url>http://www.ibiblio.org/maven</url>
+    </dependency>      
+      <dependency>
+		<groupId>cougaar</groupId>
+		<artifactId>build</artifactId>
+		<version>11.2</version>
+		<url>http://puma1.va.cougaarsoftware.com/maven/</url>
+    </dependency>
+     <dependency>
+		<groupId>cougaar</groupId>
+		<artifactId>glm</artifactId>
+		<version>11.2</version>
+		<url>http://puma1.va.cougaarsoftware.com/maven/</url>
+    </dependency>
+    <dependency>
+		<groupId>cougaar</groupId>
+		<artifactId>servicediscovery</artifactId>
+		<version>11.2</version>
+		<url>http://puma1.va.cougaarsoftware.com/maven/</url>
+    </dependency>
+     <dependency>
+		<groupId>cougaar</groupId>
+		<artifactId>xercesImpl</artifactId>
+		<version>11.2</version>
+		<url>http://puma1.va.cougaarsoftware.com/maven/</url>
+    </dependency>
+        <dependency>
+		<groupId>cougaar</groupId>
+		<artifactId>planning</artifactId>
+		<version>11.2</version>
+		<url>http://puma1.va.cougaarsoftware.com/maven/</url>
+    </dependency>
+    <dependency>
+    	<groupId>cougaar</groupId>
+    	<artifactId>servlet</artifactId>
+    	<version>11.2</version>    
+    	<url>http://puma1.va.cougaarsoftware.com/maven/</url>
+    </dependency>
+    <dependency>
+    	<groupId>junit</groupId>
+    	<artifactId>junit</artifactId>
+    	<version>3.8.1</version>    
+    	<url></url>
+    </dependency> 
+    <dependency>
+    	<groupId>touchgraph</groupId>
+    	<artifactId>TGWikiBrowser</artifactId>    	
+    	<version>1.2</version>
+		<url>http://puma1.va.cougaarsoftware.com/maven/</url>
+    </dependency>
+    <dependency>
+    	<groupId>prefuse</groupId>
+    	<artifactId>prefuse</artifactId>    	
+    	<version>0.1</version>
+		<url>http://puma1.va.cougaarsoftware.com/maven/</url>
+    </dependency>
+    <dependency>
+    	<groupId>jgraph</groupId>
+    	<artifactId>jgraph</artifactId>    	
+    	<version>5.0.4</version>
+		<url>http://puma1.va.cougaarsoftware.com/maven/</url>
+    </dependency>
+    <dependency>
+    	<groupId>jgraph</groupId>
+    	<artifactId>jgraph-addons</artifactId>    	
+    	<version>1.0.2</version>
+		<url>http://puma1.va.cougaarsoftware.com/maven/</url>
+    </dependency>            
+    
+    
+  </dependencies>
+ 
+
+  <build>
+
+    <nagEmailAddress>
+      mabrams@cougaarsoftware.com
+    </nagEmailAddress>
+
+    <sourceDirectory>src</sourceDirectory>
+    <!--<unitTestSourceDirectory>test</unitTestSourceDirectory>-->
+
+    <aspectSourceDirectory/>
+
+    <!-- Unit test cases -->
+    <unitTest>
+      <includes>
+        <include>**/*Test.java</include>        
+      </includes>
+    </unitTest>
+              
+    <!-- J A R  R E S O U R C E S -->
+    <!-- Resources that are packaged up inside the JAR file -->
+    <resources>
+    	<resource>
+    		<directory>~/.maven/repository/touchgraph/jars/TGWikiBrowser-1.2.jar</directory>
+     		<!--<targetPath>CougaarConfigurationManagement-0.4.5/zip/sys</targetPath>-->
+     	</resource>
+    </resources>
+
+    <!-- Integration unit test cases -->
+    <integrationUnitTest/>
+
+    <jars>
+    </jars>
+  </build>
+  
+  <reports>
+		<report>maven-jdepend-plugin</report>
+		<report>maven-checkstyle-plugin</report>
+		<report>maven-pmd-plugin</report>
+		<report>maven-statcvs-plugin</report>
+		<report>maven-changelog-plugin</report>
+		<report>maven-developer-activity-plugin</report>
+		<report>maven-file-activity-plugin</report>	
+		<report>maven-junit-report-plugin</report>
+		<report>maven-javadoc-plugin</report>
+		<report>maven-jxr-plugin</report>
+		<report>maven-tasklist-plugin</report>
+		<report>maven-linkcheck-plugin</report>
+	</reports>
+
+</project>

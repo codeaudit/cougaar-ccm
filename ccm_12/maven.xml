@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project
+  xmlns:j="jelly:core"
+  xmlns:util="jelly:util"
+  xmlns:x="jelly:xml">
+
+  <!-- Important goals, preGoals and postGoals defined in this file:
+    postGoal jar:          Build a jar file normally, AND build the overlay zip file.
+    goal overlay:          Build the overlay without running the Junit tests
+
+  -->
+  
+  <goal name="build-zip">
+      <attainGoal name="build-zip-file-list"/>
+    <zip destfile="${maven.build.dir}/${pom.name}-${pom.currentVersion}.zip"
+      basedir="${CCM.zip}"
+    />
+    
+  </goal>
+
+  <goal name="build-zip-file-list">
+    <!-- Builds a file containing all the files in the overlay zip file,
+         one line per file.
+        I am sure this could be simplified. -->
+    <mkdir dir="${CCM.zip}/install-history"/>
+    <tstamp/>
+    <fileScanner var="zipFilesScanner">
+      <fileset dir="${CougaarConfigurationManagement.zip}">
+      </fileset>
+    </fileScanner>
+    <j:set var="parentDir" value="${CougaarConfigurationManagement.zip}"/>
+    <j:set var="parentDirLen" value="${parentDir.length()}"/>
+    <j:forEach var="zipFilesScanner" items="${zipFilesScanner.iterator()}">
+       <j:set var="tmp" value="${zipFilesScanner.getPath().toString().substring(parentDirLen).substring(1)}"/>
+       <echo file="${CCM.zip}/install-history/CougaarConfigurationManagement-${DSTAMP}-${TSTAMP}.txt" append="true">${tmp}</echo>
+    </j:forEach>
+  </goal>
+  
+  <goal name="zip-overlay">
+    <property name="CCM.base" value="."/> 
+    <property name="CCM.dist" value="${maven.build.dir}/${pom.name}-${pom.currentVersion}"/>
+    <property name="CCM.zip" value="${CCM.dist}/zip"/>
+    <property name="CCM.overlay" value="${CCMchess2.base}/overlay"/>
+    <property name="overlayname" value="CCM"/>
+    <property name="CCM.test" value="."/>
+    <echo>"Building distribution under ${CCM.dist}"</echo>
+    
+    <!-- Clean out the distribution target -->
+    <delete dir="${CCM.dist}"/>  
+    <delete file="${CCM.dist}.zip"/>
+    <delete includeemptydirs="true" quiet="true" failonerror="false">
+          <fileset dir="${maven.build.dir}/docs" includes="**/*"/>
+    </delete>    
+    <mkdir dir="${maven.build.dir}/docs"/> 
+    
+    <!-- Copy configuration files -->
+    <mkdir dir="${CCM.dist}"/>  
+    <mkdir dir="${CCM.zip}/pizza/configs/pizzaparty"/>
+       
+    <copy todir="${CCM.zip}/pizza/configs/pizzaparty">
+      <fileset dir="${CCM.base}/overlay/configs/societyfiles/experiment/">
+      </fileset>
+    </copy>
+    <!-- Copy image files -->
+    <copy todir="${CCM.zip}/pizza/configs/pizzaparty">
+      <fileset dir="${CCM.base}/images/">
+      </fileset>
+    </copy>     
+    
+    <!-- Copy project jar files -->
+    <mkdir dir="${CCM.zip}/sys"/>
+    <mkdir dir="${CCM.zip}/lib"/>
+    <copy todir="${CCM.zip}/sys">
+      <fileset dir="${maven.build.dir}">
+        <include name="${pom.name}-${pom.currentVersion}.jar"></include>
+      </fileset>
+    </copy>
+    <copy todir="${CCM.zip}/sys" file="${maven.home.local}/repository/touchgraph/jars/TGWikiBrowser-1.2.jar">
+        <echo>"External jar: ${maven.home.local}/repository/touchgraph/jars/TGWikiBrowser-1.2.jar"</echo>
+    </copy>
+    <copy todir="${CCM.zip}/lib" file="${maven.home.local}/repository/cougaar/jars/core-12.0.1-patch.jar">
+    </copy>    
+   <!-- <copy todir="${CCM.zip}/sys" file="${maven.home.local}/repository/ehcache/jars/ehcache-1.1.jar">
+    </copy>      
+    <copy todir="${CCM.zip}/sys" file="${maven.home.local}/repository/bsh/jars/bsh-1.2b7.jar">
+    </copy>  
+    <copy todir="${CCM.zip}/sys" file="${maven.home.local}/repository/castor/jars/castor-0.9.5-xml.jar">
+    </copy>      
+    <copy todir="${CCM.zip}/sys" file="${maven.home.local}/repository/hibernate/jars/hibernate-3.0.5
+    .jar">
+    </copy> -->     
+  </goal>
+  
+  <goal xmlns:deploy="deploy" name="deploy-3rd-party-jar-files">
+    <!-- TODO: need to exclude jar files that are required for the build process only.
+        are jar files that are provided in the Cougaar distribution.
+    -->
+    <!-- 3rd party jar files already provided with Cougaar -->
+    <!-- jar files part of the Cougaar distribution -->
+    <deploy:copy-deps todir="${CCM.zip}/sys"
+        excludes="core,planning,community,juddi,fesi,jcchart,securityservicsses,kaos,mm-mysql,jpython,silk,uddi4j,concurrent,servlet,xml-apis,xercesImpl,junit,tools,openmap,vgj,hsqldb,servlet,xerces,log4j,util,servicediscovery,bootstrap,glm,yp,build,rdf-api"/>
+  </goal>${maven.home.local}/repository/touchgraph/jars/TGWikiBrowser-1.2.jar
+  
+   <goal name="internal-build-overlay">
+    <!-- TODO: find a way to build the jar file without running the tests.
+        There are some cases when we would like to create the jar file quickly.
+        Running the Junit tests may take a very long time.
+    -->
+    <attainGoal name="zip-overlay"/>
+  </goal>
+
+    <!-- Build the overlay without running the Junit tests -->
+  <goal name="overlay-base">
+    <attainGoal name="java:compile"/>
+    <attainGoal name="java:jar-resources"/>
+    <jar destfile="${maven.build.dir}/${pom.name}-${pom.currentVersion}.jar"
+         basedir="${maven.build.dest}"
+         includes="**/*.class, **/*.xml, **/*.clp **/*.properties"/>
+    <attainGoal name="internal-build-overlay"/>
+  </goal>
+  
+  <!--
+      This goal builds the "infrastructure" overlay, which includes only the csi_core jar file
+      and the necessary config files.  This will only include csi_core-X.X.X.jar to the CIP/sys 
+      directory, no other 3rd party jar files are included.
+      
+      NOTE: this goal only *builds* the overlay, use install-overlay if you want to build and
+            install the overlay.
+  -->
+  <goal name="overlay">
+  	<attainGoal name="overlay-base"/>
+  	<attainGoal name="build-zip"/>
+  </goal>
+  
+  <!--
+      This goal builds the "full" overlay, which includes the csi_core jar file,
+      all necessary config files, and all 3rd party jar files.
+      
+      NOTE: this goal only *builds* the overlay, use install-overlay-full if you want 
+            to build and install the overlay.
+  -->
+  <goal name="overlay-full">
+      <attainGoal name="overlay-base"/>
+      <attainGoal name="deploy-3rd-party-jar-files"/>
+      <attainGoal name="build-zip"/>
+  </goal>
+  
+  
+   <!-- "internal" goal used by install-overlay and install-overlay-full
+       to do the install work after the overlay is actually built. --> 
+  <goal name="install-overlay-install">    
+    <!-- Maybe the unzip task should be separate -->
+    <property environment="env"/>
+    <echo>Unzipping overlay to ${env.COUGAAR_INSTALL_PATH}</echo>
+ 	<unzip dest="${env.COUGAAR_INSTALL_PATH}"
+      src="${maven.build.dir}/${pom.name}-${pom.currentVersion}.zip"/>
+  </goal>  
+  
+   <!-- 
+      This goal builds and installs the "infrastructure" overlay.
+      See the "overlay" goal for complete details.
+  -->
+  <goal name="install-overlay">
+    <attainGoal name="overlay"/>
+  	<attainGoal name="install-overlay-install"/>
+  </goal>
+  
+  <!-- 
+      This goal builds and installs the "full" overlay.
+      See the "overlay-full" goal for complete details.
+  -->
+  <goal name="install-overlay-full">
+    <attainGoal name="overlay-full"/>
+  	<attainGoal name="install-overlay-install"/>
+  </goal>
+    
+</project>
