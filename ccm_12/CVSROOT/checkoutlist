@@ -8,6 +8,6 @@
 #
 # File format:
 #
-#	[<whitespace>]<filename>[<whitespace><error message>]<end-of-line>
+#	[<whitespace>]<filename><whitespace><error message><end-of-line>
 #
 # comment lines begin with '#'
