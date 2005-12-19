@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This file is the configuration file for a simple 4 agent society. -->
+<!-- The current configuration places all 4 agents on a single node (MiniNode). -->
+<!-- If you would like to break the agents up across different nodes, or hosts, -->
+<!-- create a new <node name=name_here> section within the host element.  -->
+<!-- Then remove the desired <agent>'s from the current <node> and place them -->
+<!-- in the new <node>.  -->
+<!-- The same can be done for adding a new <host>:  Add the new <host> to the -->
+<!-- <society>, add a new <node> on the new <host> and then place agents on new node -->
+<society 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  name="CONFIG-SOCIETY" 
+  xsi:noNamespaceSchemaLocation="http://www.cougaar.org/2003/society.xsd">
+  <host name="localhost">
+    <node name="TestNode">
+    <class>
+        org.cougaar.bootstrap.Bootstrapper
+      </class>
+     <prog_parameter>
+        org.cougaar.core.node.Node
+      </prog_parameter>
+	  <vm_parameter>
+		-Dorg.cougaar.bootstrap.class=org.cougaar.bootstrap.Bootstrapper
+	  </vm_parameter>
+	  <vm_parameter>
+		-Dorg.cougaar.install.path=COUGAAR_INSTALL_PATH
+	  </vm_parameter>
+	  <vm_parameter>
+		-Dorg.cougaar.society.file=TestSociety.xml
+	  </vm_parameter>
+	  <vm_parameter>
+		-Dorg.cougaar.system.path=COUGAAR_INSTALL_PATH/sys
+	  </vm_parameter>
+	  <vm_parameter>
+		-Dorg.cougaar.lib.web.scanRange=100
+	  </vm_parameter>
+	  <vm_parameter>
+		-Dorg.cougaar.core.servlet.enable=true
+	  </vm_parameter>
+	  <vm_parameter>
+		-Dorg.cougaar.workspace=COUGAAR_INSTALL_PATH/workspace
+	  </vm_parameter>
+	  <vm_parameter>
+		-Dorg.cougaar.lib.web.https.port=-1
+	  </vm_parameter>
+	  <vm_parameter>
+		-Dorg.cougaar.lib.web.http.port=8800
+	  </vm_parameter>
+	  <vm_parameter>
+		-Dorg.cougaar.core.logging.config.filename=log.properties
+	  </vm_parameter>
+	  <vm_parameter>
+		-Dorg.cougaar.config.path=.;COUGAAR_INSTALL_PATH/configs/common;COUGAAR_INSTALL_PATH/configs/glmtrans;./images
+	  </vm_parameter>
+      <vm_parameter>
+        -Dorg.cougaar.node.name=TestNode
+      </vm_parameter>
+      <vm_parameter>
+      	-Dorg.cougaar.core.node.InitializationComponent=XML
+      </vm_parameter>
+  	  <vm_parameter>
+  	  	-Dorg.cougaar.yp.ypAgent=AgentA
+  	  </vm_parameter>
+	  <vm_parameter>
+		-Xbootclasspath/p=-Xbootclasspath/p:COUGAAR_INSTALL_PATH/lib/javaiopatch.jar
+	  </vm_parameter>
+	   <vm_parameter>
+	     -classpath=COUGAAR_INSTALL_PATH/lib/bootstrap.jar
+	  </vm_parameter>
+	  <vm_parameter>
+	   	-Xms=-Xms64m
+	   </vm_parameter>
+	  <vm_parameter>
+	  	-Xoss=-Xoss256k
+	  </vm_parameter>
+	  <vm_parameter>
+	  	-Xmx=-Xmx768m
+	  </vm_parameter>
+	  <vm_parameter>
+	  	-Duser.timezone=GMT
+	  </vm_parameter>
+	  <vm_parameter>
+	  	-Dorg.cougaar.core.agent.startTime=08/10/2005
+	  </vm_parameter>
+
+      <vm_parameter>-Dorg.cougaar.node.name=TestNode</vm_parameter>
+      <component class="com.cougaarsoftware.config.AgentConfigurationPlugin">
+        	<argument>UPDATE_INTERVAL_PARAM=10000</argument>
+        	<argument>CONFIG_COMMUNITY_PARAM=TestNodeConfigCommunity</argument>
+      </component>    
+      <component
+        name='org.cougaar.core.mobility.service.RootMobilityPlugin()'
+        class='org.cougaar.core.mobility.service.RootMobilityPlugin'
+        priority='COMPONENT'
+        insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
+      </component>
+      <agent name="SampleAgent1">       
+      <component
+        name='org.cougaar.core.mobility.service.RedirectMovePlugin()'
+        class='org.cougaar.core.mobility.service.RedirectMovePlugin'
+        priority='COMPONENT'
+        insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
+      </component>
+      	<component class="com.cougaarsoftware.config.service.ConfigurationServiceComponent"
+		           priority='HIGH'
+                   insertionpoint='Node.AgentManager.Agent.ConfigurationService'>
+      	</component>      	
+        <component class="org.cougaar.core.servlet.SimpleServletComponent">
+          <argument>org.cougaar.planning.servlet.PlanViewServlet</argument>
+          <argument>/tasks</argument>
+        </component>
+        <component class='org.cougaar.community.util.CommunityViewerServlet'>
+      </component>
+        <component class="org.cougaar.core.wp.WhitePagesServlet">
+          <argument>/wp</argument>
+        </component>      
+        <component class="com.cougaarsoftware.config.AgentConfigurationPlugin">
+        	<argument>UPDATE_INTERVAL_PARAM=10000</argument>
+        	<argument>CONFIG_COMMUNITY_PARAM=TestNodeConfigCommunity</argument>
+        </component>
+         <component class="com.cougaarsoftware.config.ConfigurationManagerPlugin">
+        	<argument>UPDATE_INTERVAL_PARAM=10000</argument>
+        	<argument>CONFIG_COMMUNITY_PARAM=TestNodeConfigCommunity</argument>
+        </component>
+         <component class="com.cougaarsoftware.config.servlet.ConfigViewerServlet">        
+        </component>        
+        <component class="com.cougaarsoftware.config.servlet.FileServletComponent">     
+        </component>
+        <component class="com.cougaarsoftware.config.TestPlugin">     
+        </component>      
+        <component class="com.cougaarsoftware.config.AgentAdderPlugin">     
+        </component>      
+        <component class="com.cougaarsoftware.config.gui.ConfigViewerApplicationPlugin">
+            <!--
+            <argument>graphPanelClass=com.cougaarsoftware.config.gui.prefuse.PrefuseConfigViewerGraphPanel</argument>
+            -->
+            <argument>graphPanelClass=com.cougaarsoftware.config.gui.touchgraph.TGConfigViewerGraphPanel</argument>
+        </component>
+        <component
+          name='org.cougaar.community.CommunityPlugin()'
+          class='org.cougaar.community.CommunityPlugin'
+          priority='COMPONENT'
+          insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
+        </component>
+      </agent>
+      <agent name="SampleAgent2">      
+      <component class='org.cougaar.community.util.CommunityViewerServlet'>
+      </component>
+      <component
+        name='org.cougaar.core.mobility.service.RedirectMovePlugin()'
+        class='org.cougaar.core.mobility.service.RedirectMovePlugin'
+        priority='COMPONENT'
+        insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
+      </component>
+         <component class="com.cougaarsoftware.config.service.ConfigurationServiceComponent"
+		           priority='HIGH'
+                   insertionpoint='Node.AgentManager.Agent.ConfigurationService'>
+      	</component> 
+        <component class="org.cougaar.core.servlet.SimpleServletComponent">
+          <argument>org.cougaar.planning.servlet.PlanViewServlet</argument>
+          <argument>/tasks</argument>
+        </component>
+        <component class="org.cougaar.core.wp.WhitePagesServlet">
+          <argument>/wp</argument>
+        </component>       
+        <component class="com.cougaarsoftware.config.AgentConfigurationPlugin">
+        	<argument>UPDATE_INTERVAL_PARAM=10000</argument>
+        	<argument>CONFIG_COMMUNITY_PARAM=TestNodeConfigCommunity</argument>
+        </component>
+        <component
+          name='org.cougaar.community.CommunityPlugin()'
+          class='org.cougaar.community.CommunityPlugin'
+          priority='COMPONENT'
+          insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
+        </component>
+      </agent>
+    </node>
+     <node name="TestNode2">
+      <class>org.cougaar.bootstrap.Bootstrapper</class>
+      <vm_parameter>-Dorg.cougaar.node.name=TestNode</vm_parameter>
+      <component class="com.cougaarsoftware.config.AgentConfigurationPlugin">
+        	<argument>UPDATE_INTERVAL_PARAM=10000</argument>
+        	<argument>CONFIG_COMMUNITY_PARAM=TestNodeBConfigCommunity</argument>
+      </component>
+        <component
+        name='org.cougaar.core.mobility.service.RootMobilityPlugin()'
+        class='org.cougaar.core.mobility.service.RootMobilityPlugin'
+        priority='COMPONENT'
+        insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
+      </component>
+      <agent name="SampleAgent3">   
+       <component
+        name='org.cougaar.core.mobility.service.RedirectMovePlugin()'
+        class='org.cougaar.core.mobility.service.RedirectMovePlugin'
+        priority='COMPONENT'
+        insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
+      </component>
+       	<component class="com.cougaarsoftware.config.service.ConfigurationServiceComponent"
+		           priority='HIGH'
+                   insertionpoint='Node.AgentManager.Agent.ConfigurationService'>
+      	</component>    
+        <component class="org.cougaar.core.servlet.SimpleServletComponent">
+          <argument>org.cougaar.planning.servlet.PlanViewServlet</argument>
+          <argument>/tasks</argument>
+        </component>
+        <component class='org.cougaar.community.util.CommunityViewerServlet'>
+      </component>
+        <component class="org.cougaar.core.wp.WhitePagesServlet">
+          <argument>/wp</argument>
+        </component>      
+        <component class="com.cougaarsoftware.config.AgentConfigurationPlugin">
+        	<argument>UPDATE_INTERVAL_PARAM=10000</argument>
+        	<argument>CONFIG_COMMUNITY_PARAM=TestNodeBConfigCommunity</argument>
+        </component>   
+        <component
+          name='org.cougaar.community.CommunityPlugin()'
+          class='org.cougaar.community.CommunityPlugin'
+          priority='COMPONENT'
+          insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
+        </component>  
+    
+      </agent>
+      <agent name="SampleAgent4">       
+       	<component class="com.cougaarsoftware.config.service.ConfigurationServiceComponent"
+		           priority='HIGH'
+                   insertionpoint='Node.AgentManager.Agent.ConfigurationService'>
+      	</component>
+      	<component class='org.cougaar.community.util.CommunityViewerServlet'>
+      </component>
+        <component class="org.cougaar.core.servlet.SimpleServletComponent">
+          <argument>org.cougaar.planning.servlet.PlanViewServlet</argument>
+          <argument>/tasks</argument>
+        </component>
+        <component class="org.cougaar.core.wp.WhitePagesServlet">
+          <argument>/wp</argument>
+        </component>       
+        <component class="com.cougaarsoftware.config.AgentConfigurationPlugin">
+        	<argument>UPDATE_INTERVAL_PARAM=10000</argument>
+        	<argument>CONFIG_COMMUNITY_PARAM=TestNodeBConfigCommunity</argument>
+        </component>
+          <component class="com.cougaarsoftware.config.ConfigurationManagerPlugin">
+        	<argument>UPDATE_INTERVAL_PARAM=10000</argument>
+        	<argument>CONFIG_COMMUNITY_PARAM=TestNodeBConfigCommunity</argument>
+        	<argument>PARENT_CONFIG_COMMUNITY_PARAM=TestNodeConfigCommunity</argument>
+        </component>
+        <component
+          name='org.cougaar.community.CommunityPlugin()'
+          class='org.cougaar.community.CommunityPlugin'
+          priority='COMPONENT'
+          insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
+        </component>
+     <component
+        name='org.cougaar.core.mobility.service.RedirectMovePlugin()'
+        class='org.cougaar.core.mobility.service.RedirectMovePlugin'
+        priority='COMPONENT'
+        insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
+      </component>
+      </agent>
+    </node>
+  </host>
+</society>
