@@ -61,9 +61,6 @@
   	  <vm_parameter>
   	  	-Dorg.cougaar.yp.ypAgent=AgentA
   	  </vm_parameter>
-	  <vm_parameter>
-		-Xbootclasspath/p=-Xbootclasspath/p:COUGAAR_INSTALL_PATH/lib/javaiopatch.jar
-	  </vm_parameter>
 	   <vm_parameter>
 	     -classpath=COUGAAR_INSTALL_PATH/lib/bootstrap.jar
 	  </vm_parameter>
