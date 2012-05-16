@@ -20,11 +20,11 @@
   </description>
   
   <issueTrackingUrl>
-	ccm.cougaar.org
+	cougaar.org
   </issueTrackingUrl>
   
   <siteAddress>
-	ccm.cougaar.org
+	cougaar.org
   </siteAddress>
   
   <siteDirectory>
@@ -33,10 +33,10 @@
 
   <repository>
     <connection>
-      scm:cvs:ext:${maven.username}@cougaar.org:/cvsroot/ccm:ccm
+      scm:git:ext:http://cougaar.org/git/ccm.git
    </connection>
     <url>
-		http://cougaar.org/cgi-bin/viewcvs.cgi/?cvsroot=ccm
+		http://cougaar.org/gitweb?p=ccm.git;a=summary
     </url>
   </repository>
 
